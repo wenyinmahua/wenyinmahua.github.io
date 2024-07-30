@@ -1,0 +1,7 @@
+/public/
+/node_modules/
+/.github/
+/_config.landscape.yml
+/db.json
+/package-lock.json
+/yarn.lock
