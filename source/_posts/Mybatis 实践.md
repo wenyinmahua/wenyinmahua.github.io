@@ -2,7 +2,6 @@
 title: MyBatis 实践
 date: 2023-09-17
 updated: 2024-09-19
-sticky: 3
 comments: true
 category: MyBatis
 cover: https://tse4-mm.cn.bing.net/th/id/OIP-C.GKAMkayAM_3-HpEgKPnMewHaB2?w=329&h=87&c=7&r=0&o=5&dpr=1.3&pid=1.7
