@@ -1,7 +1,7 @@
 ---
 title: Vue
-date: 2023-09-15
-updated: 2024-04-01
+date: 2023-09-10
+updated: 2023-09-15
 comments: true
 category: Vue
 cover: https://tse2-mm.cn.bing.net/th/id/OIP-C.Ve8s2wOzcP0qpU37-wQKlAHaEK?w=270&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7
