@@ -4,6 +4,7 @@ date: 2023-06-11
 updated: 2023-06-15
 comments: true
 category: MySQL
+cover: https://tse3-mm.cn.bing.net/th/id/OIP-C.LvJiXW0ldtBwCwC5TBSh4QHaEK?w=321&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7
 ---
 # mysql精简版
 

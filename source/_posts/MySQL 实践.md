@@ -4,6 +4,7 @@ date: 2023-05-23
 updated: 2023-06-10
 comments: true
 category: MySQL
+cover: https://tse3-mm.cn.bing.net/th/id/OIP-C.LvJiXW0ldtBwCwC5TBSh4QHaEK?w=321&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7
 ---
 
 启动MySQL服务，登录，查看数据库，数据库里面有表，查看表的内容。
