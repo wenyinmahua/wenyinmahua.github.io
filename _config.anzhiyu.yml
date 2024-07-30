@@ -512,13 +512,13 @@ footer:
     cc:
       enable: false
       link: /copyright
-    linkList:
-#      - link: https://github.com/anzhiyu-c/hexo-theme-anzhiyu
-#        text: 主题
-      # - link: https://image.anheyu.com
-      #   text: 图床
-       - link: https://beian.miit.gov.cn/
-         text: 湘ICP备-xxxxxxx号
+#    linkList:
+##      - link: https://github.com/anzhiyu-c/hexo-theme-anzhiyu
+##        text: 主题
+#      # - link: https://image.anheyu.com
+#      #   text: 图床
+#       - link: https://beian.miit.gov.cn/
+#         text: 湘ICP备-xxxxxxx号
     subTitle:
       enable: true
       # Typewriter Effect (打字效果)
