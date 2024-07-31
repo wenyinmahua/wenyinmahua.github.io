@@ -1,7 +1,7 @@
 ---
 title: Elasticsearch
-date: 2024-07-01
-updated: 2024-07-01
+date: 2024-06-29
+updated: 2024-06-29
 tags: "ElasticSearch"
 category: ElasticSearch
 comments: true
