@@ -14,9 +14,25 @@ cover: https://ts1.cn.mm.bing.net/th?id=OIP-C.ICOYnUeFkm4f4DDBsk82sgHaDU&w=349&h
 
 
 
+> 单体项目完成微服务拆分之后，如何找到并调用其他微服务提供的服务？
+>
+> 通过 Nacos 提供的服务注册和发现的功能来实现。
+>
+> - 需要使用 Docker 部署 Nacos 注册中心；（需要 MySQL 数据库存储数据）
+> - 需要引入 nacos 服务注册发现的依赖；`spring-cloud-starter-alibaba-nacos-discovery`
+> - 需要在 yml 文件中配置 Nacos 的地址`cloud.nacos.server-addr`
+> - 启动服务之后便可发现该服务已经被注册到 Nacos 中了。
+>
+> 注意这里的服务发现是将一整个服务都注册到 Nacos 中，而不是服务的某个方法。
+>
+> - 服务发现通过 DiscoveryClient 对象发现服务实例列表，该对象已被 SpringCloud 自动装配
+>   - 通过这个对象的 getInstances 方法可以拿到一个服务的示例列表 instances，通过 instances 的 get 方法使用负载均衡拿到一个实例
+
+ 
+
 ## PRC
 
-**RPC：**服务之间的远程调用被称为RPC（**R**emote **P**roduce **C**all），即远程过程调用。
+**RPC：**服务之间的远程调用被称为 RPC（**R**emote **P**roduce **C**all），即远程过程调用。
 
 在微服务远程调用的过程中，包括两个角色：
 
@@ -31,7 +47,7 @@ cover: https://ts1.cn.mm.bing.net/th?id=OIP-C.ICOYnUeFkm4f4DDBsk82sgHaDU&w=349&h
 
 流程如下：
 
-- 服务启动时就会注册自己的服务信息（服务名、IP、端口）到注册中心；
+- 服务启动时就会注册自己的服务信息**（服务名、IP、端口）**到注册中心；就确定了后期的 OpenFeign 可以通过服务名来实现远程调用；
 - 调用者可以从注册中心订阅想要的服务，获取服务对应的实例列表（1个服务可能多实例部署）
 - 调用者自己对实例列表负载均衡（随机、轮询），挑选一个实例；
 - 调用者向该实例发起远程调用；

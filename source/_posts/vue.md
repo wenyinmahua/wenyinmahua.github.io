@@ -457,13 +457,13 @@ vue工程化（create-Vue）需要**Node.js依赖环境**（跨平台的JS运行
 - Vue启动：npm run dev
   - code中使用NPM脚本的：dev(vite)
 
-> - 创建：npm init vue@latest
-> - 目录结构：npm install
+> - 创建 Vue 项目：npm init vue@latest
+> - 安装依赖：npm install
 > - 启动：npm run dev
 
 
 
-<h3>vue页面解读
+### vue页面解读
 
 index.html是vue项目启动之后的默认首页，其中引入了main.js入口文件，而main.js文件中又引入了*.Vue文件。
 
@@ -476,7 +476,7 @@ index.html是vue项目启动之后的默认首页，其中引入了main.js入口
 <style>当前组件的CSS样式</style>
 ```
 
-<h4>Vue引入Axios
+#### Vue引入Axios
 
 ```
 npm install axios //控制台导入axios
@@ -494,7 +494,7 @@ npm install sass -D //CSS语言扩展包
   - 组合式API：在script标签中加上setup属性，使用import {onMounted, ref} from'vue'的API
 - 在开发时推荐使用组合式API，更灵活
 
-<h3>选项式API</h3>
+### 选项式API
 
 ```vue
 <script>
@@ -517,7 +517,7 @@ npm install sass -D //CSS语言扩展包
 </script>
 ```
 
-<h4>在script中定义实体数据模型
+#### 在script中定义实体数据模型
 
 
 ```vue
@@ -531,7 +531,7 @@ data(){
 },
 ```
 
-<h3>组合式API</h3>
+### 组合式API
 
 ```vue
 <script setup>
@@ -547,7 +547,7 @@ data(){
 </script>
 ```
 
-<h4>在script定义实体数据
+#### 在script定义实体数据
 
 ```vue
     const searchConditions = ref({
@@ -556,19 +556,18 @@ data(){
     })
 ```
 
-<h4>在script定义函数向后端发送请求
+#### 在script定义函数向后端发送请求
 
 ```vue
 const 函数名 = function(){
-<!--注意这里只有一个括号了-->
 	axios.get('url', {param:{...对象名.value}}).then(result=>{}).catch(err=>{})
-							<!--三个“.”代表解析对象-->
+						 <!--三个“.”代表解析对象-->
 }
 ```
 
 
 
-<h4>组合式API解读
+#### 组合式API解读
 
 - script标签中的setup是一个标识，告诉Vue需要进行一些处理，让我们可以更简洁的使用组合式APUI；
 - ref()：接收一个内部值，返回一个响应式ref对象，此对象只有一个指向内部值的属性value；
@@ -643,9 +642,9 @@ const search = async function() {
 }
 ```
 
-<h3>继续优化1
+### 继续优化1
 
-- 以上的请求都含有一个公共前缀：http://hostlocal:8080，当服务端端口改变时需要大量改变请求路径，这里可以抽出到一个变量中，方便修改。这里还要优化baseURL，参考本文档的**跨域优化**
+- 以上的请求都含有一个公共前缀：http://hostlocal:8080，当服务端端口改变时需要大量改变请求路径，这里可以抽出到一个变量中，方便修改。这里还要优化baseURL，参考本文档的 **跨域优化**
 
 修改如下
 
@@ -675,7 +674,7 @@ export async function articleSearchService(condition){
 }
 ```
 
-<h3>继续优化2
+### 继续优化2
 
 - 以上函数中有含有then和catch函数，可以通过提供一个request.js请求工具，定制request的实例，然后暴露给外界使用，使用的是响应拦截器，存放在src的util文件夹下。
 - 在请求或响应被then或catch处理前拦截它们
@@ -721,7 +720,7 @@ export function articleSearchService(condition){
 
 - 由于添加的拦截器本身是异步的，因此在article.js文件中不需要再加上await来同步等待，return给vue文件后会由vue中的await进行处理（同步等待结果）。
 
-<h3>继续优化3——axios响应拦截器
+### 继续优化3——axios响应拦截器
 
 - 尽管已经优化到这种程度，但是后续还要读取result中的code响应码判断结果是否返回成功，这时可以将判断放入在拦截器中，后继在其他函数中不再判断result中的响应码，节省开发工作量
 
@@ -754,7 +753,7 @@ export default instance;
 
 ## 4.数据模型的建立与绑定
 
-<h4>在script中建立数据模型
+### 在script中建立数据模型
 
 ```js
 const registerData = ref({
@@ -762,7 +761,7 @@ const registerData = ref({
     password:'',
     rePassword:''
 })
-在于在script中修改响应式数据需要加上.value
+// 注意：在script中修改响应式数据需要加上.value 如：registerData.value.username = "mahua";
 ```
 
 在template中相关表单绑定数据模型，有两种方式
@@ -780,11 +779,11 @@ const registerData = ref({
 
 **Element：**是饿了么团体研发的，基于Vue3，面向设计师和开发者的组件库。提供了组成页面的组件，快速搭建前端页面。
 
-**组件：**组成网页的部件，例如：超链接、按钮、图片、表格、表达那、分页条等。
+**组件：**组成网页的部件，例如：超链接、按钮、图片、表格、表单、分页条等。
 
 ## 快速入门
 
-<h3><li>准备工作
+### 准备工作
 
 1. 创建一个工程化的Vue项目
 
@@ -821,11 +820,11 @@ const registerData = ref({
 
    
 
-<h3><li>制作组件
+### 制作组件
 
 - 访问Element官方文档，复制组件代码，根据自己的需求调整
 
-<h4>分页组件的使用</h4>
+#### 分页组件的使用
 
 ```html
 <style scoped> //scope代表仅在当前vue页面生效
@@ -846,10 +845,9 @@ const registerData = ref({
 
 # 开发案例注意事项
 
-<h5>
-Element-Plus引入在App.vue
-axios引入在utils下面的request.js
-</h5>
+
+> 需要将 Element-Plus引入在App.vue
+> axios 引入在utils下面的request.js
 
 开发步骤：
 
@@ -865,7 +863,7 @@ axios引入在utils下面的request.js
 - 表单数据校验
 - 登录函数
 
-<h4>表单校验
+### 表单校验
 
 1. 定义校验规则
    ```js
@@ -904,17 +902,17 @@ axios引入在utils下面的request.js
    - el-from-item标签上通过prop属性，指定校验项
    
    ```vue
-   表单中加入如下
+   表单中加入如下：
    :rules="rules"
    表单项修改如下
-   <el-form-item prop="username">
+   <el-form-item prop="username"/>
    ```
 
 
 
 
 
-<h4>注册接口的调用
+#### 注册接口的调用
 
 在Login.vue文件调用vue.js中的请求函数
 
@@ -955,7 +953,7 @@ axios引入在utils下面的request.js
   </el-button>
   ```
 
-<h4>跨域问题
+#### 跨域问题
 
 由于**浏览器**的**同源策略**限制，向不同源（不同协议、不同域名、不同端口）发送ajax请求会失败
 
@@ -1085,9 +1083,13 @@ axios引入在utils下面的request.js
 
 ## 3.Pinia状态管理库以及持久化
 
-<h4>Pinia是Vue的专属状态管理库，它允许跨组件或页面共享状态。
+#### Pinia是Vue的专属状态管理库，它允许跨组件或页面共享状态。
 
-- 安装pinia：	npm install pinia
+- 安装pinia：	
+  ```shell
+    npm install pinia
+  ```
+
 
 - 在vue应用实例（app）中使用pinia
   ```js
@@ -1157,14 +1159,16 @@ axios引入在utils下面的request.js
   )
   ```
 
-<h3>Pinia持久化插件-persist
+### Pinia持久化插件-persist
 
 - Pinia默认是内存存储，当刷新浏览器的时候会丢失数据。
 
 - Persist插件可以将Pinia中的数据持久化的存储
 
-  - 安装persist：   npm install pinia-persistedstate-plugin
-
+  - 安装persist：   
+  ```shell
+  npm install pinia-persistedstate-plugin
+  ```
   - 在Pinia中使用persist（在main.js中操作）
     ```js
     import {createPersistedState} from 'pinia-persistedstate-pligin'
@@ -1230,13 +1234,13 @@ const showDialog = async(row)=>{
 
 ## 6.富文本编辑器
 
-文章内容需要使用到富文本编辑器，这里咱们使用一个开源的富文本编辑器 Quill
+文章内容需要使用到富文本编辑器，这里使用开源的富文本编辑器 Quill
 
 官网地址： https://vueup.github.io/vue-quill/
 
 **安装：**
 
-```js
+```shell
 npm install @vueup/vue-quill@latest --save
 ```
 
@@ -1251,10 +1255,10 @@ import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 ```html
 <quill-editor
-              theme="snow"
-              v-model:content="articleModel.content"
-              contentType="html"
-              >
+  theme="snow"
+  v-model:content="articleModel.content"
+  contentType="html"
+  >
 </quill-editor>
 ```
 
@@ -1383,98 +1387,3 @@ const handleCommand = (command) =>{
     </template>
 </el-dropdown>
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -6,12 +6,27 @@ tags:
   - 基础
 category: RabbitMQ
 comments: true
-top_single_background: https://tse2-mm.cn.bing.net/th/id/OIP-C.og0rQ01xv6I7e1LpSbNIVQAAAA?w=311&h=106&c=7&r=0&o=5&dpr=1.3&pid=1.7
-cover: https://tse4-mm.cn.bing.net/th/id/OIP-C.Jed-UVwaIqf16oq5f8ATDQHaE8?w=251&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7
+cover: https://tse2-mm.cn.bing.net/th/id/OIP-C.U4OCDM45FXAfMRK8FtOKkAHaEG?w=275&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7
 ---
 # Rabbit 高级
 
 >  确保MQ消息的可靠性，即：消息应该至少被消费者处理1次
+
+> 消息丢失要从生产者、MQ、消费者三方面防止。
+>
+> - 生产者重试机制：通过配置文件开启
+> - 生产者确认机制：`Publisher Confirm`和`Publisher Return`，通过配置文件开启，并且定义 ReturnCallback 和 ConfirmCallback
+>   - Publisher Confirm :用于确认消息是否成功到达 RabbitMQ 服务器。
+>   - Publisher Return :用于处理不可路由的消息。
+> - 增加 MQ 的可靠性：通过控制台配置
+>   - 数据（交换机、队列、消息）持久化
+>   - 惰性队列 LazyQueue
+> - 消费者确认机制：返回回执（ack、nack、reject）通过配置文件开启处理
+> - 失败重试机制：通过配置文件开启
+> - 失败处理策略：`MessageRecovery`接口的三个实现
+> - 延迟消息：死信队列
+>
+> 
 
 
 
@@ -91,6 +106,19 @@ spring:
 > - 其它情况都会返回 NACK，告知投递失败。
 >
 > 只要发送到交换机就会返回 ACK。进入交换机的消息没有正确入队就会返回异常信息。
+
+> - Basic.Ack：当 RabbitMQ 成功接收到生产者发送的消息时，它会向生产者发送一个 Basic.Ack 命令，表示消息已经被成功接收并准备进行后续的路由操作（比如发送到队列）。这里的 ACK 只是表明消息被 RabbitMQ 成功接收，并不保证它已经被路由到队列或者入队成功。消息是否能够被路由到队列还取决于交换机和队列的配置以及是否有匹配的绑定。
+>
+> - Basic.Return：如果消息无法被路由到任何队列（例如，没有匹配的绑定或队列不存在），RabbitMQ 会触发一个 Return 回调，并将消息返回给生产者。Return回调是通过 Basic.Return 命令实现的，生产者需要实现相应的回调函数来处理这种情况。
+> - confirm机制，消息的确认，是指生产者投递消息之后，如果Broker收到消息，则会给生产者一个应答，生产者能接收应答，用来确定这条消息是否正常的发送到Broker，这种机制是消息可靠性投递的核心保障。confirm机制是只保证消息到达exchange，并不保证消息可以路由到正确的queue。
+
+
+
+> 消息一旦到达交换机就代表消息投递成功了，消息投递成功返回 ACK
+>
+> 消息从发送者到交换机的时候出现了问题，就代表消息投递失败了返回 NACK
+>
+> return 机制，用于处理一些不可路由的消息，在一些特殊的情况下，当前的 exchange 不存在或者指定的路由 key 路由不到，这时如果需要及时监听这种消息，就需要 return 机制。
 
 
 
@@ -643,6 +671,18 @@ void testPublisherDelayMessage() {
         }
     });
 }
+```
+
+
+
+```java
+rabbitTemplate.converAndSend(
+    exchangeName,RoutingKey,message,
+    message->{
+        message.getMessageProperties().setDelay(10000);
+        return message;
+    }
+)
 ```
 
 

@@ -16,6 +16,18 @@ OpenFeign 是一个声明式的 HTTP 客户端库，主要用于简化 HTTP API 
 > - OpenFeign 不是一种传统的 RPC (Remote Procedure Call) 框架。
 > - 尽管 OpenFeign 可以实现远程服务调用，但它的工作原理和传统 RPC 框架有所不同。
 
+> OpenFeign 需要进行如下操作：
+>
+> - 安装并开启 Nacos 注册中心
+> - 引入并下载 OpenFeign 依赖以及负载均衡 loadbalancer 依赖
+> - 通过 @EnableFeignClients 注解启动 OpenFeign
+> - 编写 FeignClient 客户端
+>   - 一个接口，里面编写的方法，类似于 Controller 层代码，具有着 RESTful 风格。
+>   - 需要加上 @FeignClient("server-name") 注解并配置服务名，方便在 Nacos 注册中心实现服务发现和调用相关服务。
+> - 直接使用 FeignClient 客户端完成远程调用。
+>
+> FeignClient 和 调用者不在同一个 model 中时，可以通过在 @EnableFeignClients 注解中加上 basePackages 属性扫描 Feign 所在的包 
+
 
 
 ## OpenFeign 与 RPC 的区别
@@ -67,7 +79,7 @@ OpenFeign 是一个声明式的 HTTP 客户端库，主要用于简化 HTTP API 
 在主启动类上上加上如下注解，启动 OpenFeign 功能
 
 ```java
-@EnableOpenFeignClients(clients = {ProviderClient.class})
+@EnableOpenFeignClients
 ```
 
 
@@ -89,7 +101,7 @@ public interface ProviderClient {
 
 接口中的几个关键信息：
 
-- `@FeignClient("provider-service")` ：声明服务名称
+- `@FeignClient("provider-service")` ：声明服务名称，这个服务与 Nacos 中注册的服务名称一致。
 - `@GetMapping` ：声明请求方式
 - `@GetMapping("/user")` ：声明请求路径
 - `@RequestParam("id") Long id` ：声明请求参数
@@ -108,9 +120,10 @@ private ProviderClient ProviderClient;
 @Overrider
 public User getById(Long id){
     // 调用 OpenFeign 客户端
-    return providerClient.queryUserById(id);
+    User user = new User;
+    user = providerClient.queryUserById(id);
+    return user;
 }
-
 ```
 
 feign 完成了服务拉取、负载均衡、发送http请求的所有工作。
@@ -132,7 +145,7 @@ Feign默认的日志级别就是NONE，所以默认看不到请求日志。
 
 #### 5.1 定义日志级别
 
-注意这里并没有加上 @Configuration 相关的注解
+注意这里并没有加上 @Configuration 相关的注解，而是通过`@EnableFeignClients`注解配置 `defaultConfiguration` 属性完成配置。 
 
 ```java
 public class DefaultFeignConfig {

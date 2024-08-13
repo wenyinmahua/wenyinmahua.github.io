@@ -6,8 +6,7 @@ tags:
   - 基础
 category: RabbitMQ
 comments: true
-top_single_background: https://tse2-mm.cn.bing.net/th/id/OIP-C.og0rQ01xv6I7e1LpSbNIVQAAAA?w=311&h=106&c=7&r=0&o=5&dpr=1.3&pid=1.7
-cover: https://tse4-mm.cn.bing.net/th/id/OIP-C.Jed-UVwaIqf16oq5f8ATDQHaE8?w=251&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7
+cover: https://tse2-mm.cn.bing.net/th/id/OIP-C.U4OCDM45FXAfMRK8FtOKkAHaEG?w=275&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7
 ---
 # RabbitMQ
 
@@ -101,11 +100,11 @@ docker run \
 
 ### RabbitMQ 中的主要概念
 
-- **`publisher`**：生产者，也就是发送消息的一方，发送消息给交换机；
-- **`consumer`**：消费者，也就是消费消息的一方，订阅队列；
-- **`queue`**：队列，存储消息。生产者投递的消息会暂存在消息队列中，等待消费者处理，队列一定要与交换机绑定。
-- **`exchange`**：交换机，负责消息路由。生产者发送的消息由交换机决定投递到哪个队列。一方面，接收生产者发送的消息。另一方面，知道如何处理消息，例如递交给某个特别队列、递交给所有队列、或是将消息丢弃。到底如何操作，取决于 Exchange 的类型。**交换机没有存储消息的能力**
-- **`virtual host`**：虚拟主机，起到数据隔离的作用。每个虚拟主机相互独立，有各自的 exchange、queue。
+- `publisher`：生产者，也就是发送消息的一方，发送消息给交换机；
+- `consumer`：消费者，也就是消费消息的一方，订阅队列；
+- `queue`：队列，存储消息。生产者投递的消息会暂存在消息队列中，等待消费者处理，队列一定要与交换机绑定。
+- `exchange`：交换机，负责消息路由。生产者发送的消息由交换机决定投递到哪个队列。一方面，接收生产者发送的消息。另一方面，知道如何处理消息，例如递交给某个特别队列、递交给所有队列、或是将消息丢弃。到底如何操作，取决于 Exchange 的类型。**交换机没有存储消息的能力**
+- `virtual host`：虚拟主机，起到数据隔离的作用。每个虚拟主机相互独立，有各自的 exchange、queue。
 
 
 
@@ -139,6 +138,10 @@ docker run \
 
 ### 3.1 用户管理
 
+
+
+![用户管理](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240809082616485.png)
+
 RabbitMQ控制台的用户管理界面里的用户都是 RabbitMQ 的管理或运维人员。其用户表中有如下字段：
 
 - `Name`：`mahua`，也就是用户名
@@ -147,8 +150,12 @@ RabbitMQ控制台的用户管理界面里的用户都是 RabbitMQ 的管理或�
 
 对于小型企业而言，出于成本考虑，通常只会搭建一套 MQ 集群，公司内的多个不同项目同时使用。这个时候为了避免互相干扰， 会利用`virtual host`的隔离特性，将不同项目隔离。一般会做两件事情：
 
+
+
 - 给每个项目创建独立的运维账号，将管理权限分离。（add a user）
+  ![最佳运维账号](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240809083255613.png)
 - 给每个项目创建不同的`virtual host`，将每个项目的数据隔离。
+  ![创建 virtual host](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240809083155837.png)
 
 只有登录用户的创建 `virtual host`，该用户才有对其的访问权限。
 
