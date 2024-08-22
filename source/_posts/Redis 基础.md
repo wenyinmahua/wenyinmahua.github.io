@@ -12,11 +12,39 @@ cover: https://tse4-mm.cn.bing.net/th/id/OIP-C.Jed-UVwaIqf16oq5f8ATDQHaE8?w=251&
 
 # Redis 基础
 
+> 总结：
+>
+> - Redis 的数据结构：
+>
+>   - String、Hash、List、Set、SortedSet、GEO、BitMap、HyperLog、streams。
+>
+> - Redis 数据结构使用场景：
+>
+>   - String：缓存（set、get）、计数器（incr、incrby）、分布式锁（setnx）
+>   - Hash：存储复杂对象（修改时直接修改字段值）
+>   - List：分页显示、消息系统、消息队列、点赞列表
+>   - Set：共同好友、用户收藏的文章
+>   - SortedSet：排行榜、任务调度
+>   - GEO：存储地理信息、查找附近的人
+>   - BitMap：用户权限管理、访问网站的天数、bloom 过滤器
+>   - HyperLog（超级集合）：UV（独立访客统计）
+>   - Streams：消息队列。
+>
+>   如果实现一个简单的缓存，字符串类型就足够了；
+>
+>   如果处理复杂的数据结构，如用户信息，那么哈希类型将是一个不错的选择。
+>
+> - Redis 为啥这么快？
+>
+>   - **基于内存：**数据存储在内存中，读写速度非常快，因为内存访问速度比硬盘访问速度快多了。
+>   - **单线程模型：**Redis 使用单线程模型，所有的操作都是在同一个线程内完成的，不需要线程切换和上下文切换。这大大提高了 Redis 的运行效率和响应速度。
+>   - **多路复用I/O模型：**在单线程的基础上采用 I/O（数据传输）多路复用，实现了单个线程处理多个客户端连接的能力，从而提高了 Redis 的并发性能。
+>   - **高效的数据结构：** Redis 提供了多种高效的数据结构，如哈希表、有序集合、列表等，这些数据结构都被实现得非常高效，能在 O(1) 的时间复杂度内完成数据读写操作。
+>   - **多线程的引入：**在 Redis6.0 中为了进一步**提高 I/O 的性能**。采用多线程，使得网络处理的请求可以并发进行，大大提高了性能，减少了网络 I/O 等待造成的影响，还可以充分利用 CPU 的多喝优势。（增加了后台线程来处理一些耗时的操作，如数据持久化、网络 I/O 等，以减轻主线程的压力。）
+
 ## 概念
 
-**Redis：**Remote Dictionary Server，远程词典服务器，是一个基于内存的键值型NoSQL数据库
-
-![Redis](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/OIP-C.Jed-UVwaIqf16oq5f8ATDQHaE8)
+**Redis：**Remote Dictionary Server，远程词典服务器，是一个**基于内存**的键值型NoSQL数据库。使用RESP（REdis Serialization Protocol）协议（基于 TCP 协议）
 
 **特性：**
 
@@ -28,19 +56,29 @@ cover: https://tse4-mm.cn.bing.net/th/id/OIP-C.Jed-UVwaIqf16oq5f8ATDQHaE8?w=251&
 
   > 访问 Redis 数据的速度是**微秒级**
 
-- 支持数据持久化；
+- 支持数据持久化（AOF、RDB）；
 
 - 支持主从集群、分片集群；
 
 - 支持多语言客户端。
 
+Redis 的 **I/O 多路复用**主要用于处理对外的网络连接，而不是对内部数据的操作。具体来说，I/O 多路复用技术用于**管理和监控**客户端与 Redis 服务器之间的网络通信，而不是 Redis 服务器内部的数据处理或存储操作。
+
+Redis 采用单线程**处理命令**（数据的读写）的主要原因是为了简化实现、保证数据一致性和易于调试。
+
+Redis 通过多线程来**加速 I/O 操作和后台任务**，以提高整体性能并充分利用现代多核处理器的能力。
+
+这种混合模型让 Redis 既能在高性能下运行，又能保持数据的一致性和安全性。
+
+虽然命令处理本身是单线程的，但在 I/O 层面，Redis 可能使用多个线程来处理客户端的**连接请求和数据传输**。例如，一个线程可能专门用于读取客户端数据（客户端发送的命令），另一个线程用于写回响应，而核心的**命令处理**则由主线程完成。
+
 
 
 ### Redis 应用程序
 
-- redis-cli：是redis提供的命令行客户端
-- redis-server：是redis的服务端启动脚本
-- redis-sentinel：是redis的哨兵启动脚本
+- redis-cli：是 Redis 提供的命令行客户端
+- redis-server：是 Redis 的服务端启动脚本
+- redis-sentinel：是 Redis 的哨兵启动脚本
 
 
 
@@ -99,13 +137,13 @@ String 类型，也就是字符串类型，是 Redis 中最简单的存储类型
 - GET：根据 key 获取 String 类型的 value
 - MSET：批量添加多个 String 类型的键值对
 - MGET：根据多个 key 获取多个 String 类型的 value
-- INCR：让一个整型的 key 自增 1
-- INCRBY：让一个整型的 key 自增并指定补偿，如：INCRBY age 1 让age值自增1
+- INCR：让一个值（value）为整型的 key 的 value 自增 1
+- INCRBY：让一个值为整型的 key 的vlaue自增指定的步长，如：INCRBY age 1 让age值自增1
 - INCRBYFLOAT：让一个浮点类型的数字自增并指定步长
 - SETNX：添加一个 String 类型的键值对，前提是这个 key 不存在，否则就不会执行
 - SETEX：添加一个 String 类型的键值对，并且指定有效期
 
-
+![String 指令演示](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240822192854198.png)
 
 
 
@@ -136,6 +174,8 @@ Hash （散列）类型，其 value 是一个无序字典，类似于 Java 中�
 - HINCRBY：让一个 hash 类型的 key 的字段值自增并指定步长
 - HSETNX：添加一个 hash 类型的 key 的 field 值，前提是这个 field 不存在，否则不执行
 
+![Hash 指令演示](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240822193326070.png)
+
 
 
 ### 3. List 类型
@@ -161,7 +201,7 @@ Redis 中的 List 类型与 Java 中的 LinkedList 类似，底层可以看作�
 - LRANGE key star end：返回一段角标范围内的所有的元素
 - BLPOP和BRPOP：与 LPOP 和RPOP类似，只不过在没有元素时等待指定时间，而不是直接返回nil
 
-
+![List 指令演示](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240822194039466.png)
 
 ### 4. Set 类型
 
@@ -191,7 +231,7 @@ Redis 的 Set 结构与 Java 中的 HashSet 类似，可以看作是一个 value
 
 ### 5. SortedSet类型
 
-Redis 中的 SortedSet 是一个可排序的 set 集合，与 Java 中的 TreeSet 有些类似，但底层数据结构却差别很大。SortedSet 中的每一个元素都带有一个 score 属性，可以基于 score 属性对元素排序，底层的实现是一个跳表（SkipList）加 hash表
+Redis 中的 SortedSet 是一个可排序的 set 集合，SortedSet 中的每一个元素都带有一个 score 属性，可以基于 score 属性对元素排序，底层的实现是一个跳表（SkipList）加 hash 表
 
 SortedSet 具备下列特性：
 
@@ -216,6 +256,8 @@ SortedSet 具备下列特性：
 - ZDIFF、ZINTER、ZUNION：求差集、交集、并集。
 
 > 注意：所有的排名默认都是升序，如果要降序则在命令的 Z 后面添加 REV（reverse）即可。
+
+![SortedSet 指令演示](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240822202044162.png)
 
 
 
@@ -248,3 +290,4 @@ Redis 是利用 string 类型数据结构实现 BitMap，因此最大上限是 5
 - BITFIELD_RO：获取 BitMap 中的 bit 数组，并以十进制形式返回
 - BITOP：将多个 BitMap 的结果做位运算
 - BITPOS：查找 bit 数组中指定范围内第一个 0 或 1 出现的位置
+
