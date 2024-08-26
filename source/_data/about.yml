@@ -77,21 +77,9 @@
     comic_tips: 爱好番剧
     comic_title: 追番
     comic_list:
-      - name: 约定的梦幻岛
-        href: https://www.bilibili.com/bangumi/media/md5267750/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.1
-        cover: https://bu.dusays.com/2023/05/27/647166c44b414.webp
-      - name: 咒术回战
-        href: https://www.bilibili.com/bangumi/media/md28229899/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.1
-        cover: https://bu.dusays.com/2023/05/24/646db4398832e.webp
-      - name: 紫罗兰永恒花园
-        href: https://www.bilibili.com/bangumi/media/md8892/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.1
-        cover: https://bu.dusays.com/2023/05/24/646db43983d99.webp
-      - name: 鬼灭之刃
-        href: https://www.bilibili.com/bangumi/media/md22718131/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.1
-        cover: https://bu.dusays.com/2023/05/24/646db439856a0.webp
-      - name: JOJO的奇妙冒险 黄金之风
-        href: https://www.bilibili.com/bangumi/media/md135652/?spm_id_from=666.25.b_6d656469615f6d6f64756c65.1
-        cover: https://bu.dusays.com/2023/05/30/64760e38d651a.webp
+      - name: 神魄
+        href: https://www.bilibili.com/bangumi/media/md664
+        cover: https://tse1-mm.cn.bing.net/th/id/OIP-C.1w29CD-m_XGOF0y5mlfDGwAAAA?w=316&h=177&c=7&r=0&o=5&dpr=1.3&pid=1.7
   like:
     like_tips: 关注偏好
     like_title: 数码科技
@@ -102,51 +90,3 @@
     music_title: 许嵩、民谣、华语流行
     music_bg: https://p2.music.126.net/Mrg1i7DwcwjWBvQPIMt_Mg==/79164837213438.jpg
     music_link: /music
-  reward_list:
-    - name: 海阔蓝
-      amount: 8.8
-      datatime: 2023-03-28
-    - name: LK66
-      amount: 66.6
-      datatime: 2023-03-24
-    - name: 张时貳
-      amount: 6.6
-      datatime: 2023-01-22
-    - name: ZeroAf
-      amount: 9.9
-      datatime: 2022-12-14
-    - name: LuckyWangXi
-      amount: 6.6
-      datatime: 2022-12-14
-    - name: 刀中日月长
-      amount: 10
-      datatime: 2022-11-16
-    - name: 鹿啵包
-      amount: 10
-      datatime: 2022-11-08
-    - name: 疾速k
-      amount: 50
-      datatime: 2022-09-20
-    - name: 伴舟先生大霖子
-      amount: 4.03
-      datatime: 2022-10-27
-      suffix: 贝壳
-    - name: Magica_0x0
-      amount: 3.36
-      datatime: 2022-10-07
-      suffix: 贝壳
-    - name: 名字就是要短像这样
-      amount: 3.36
-      datatime: 2022-08-25
-      suffix: 贝壳
-    - name: Leviathan520
-      amount: 1.34
-      datatime: 2022-08-23
-      suffix: 贝壳
-    - name: 托马斯
-      amount: 10
-      datatime: 2022-08-19
-    - name: 哇是猫猫欸
-      amount: 1.34
-      datatime: 2022-08-19
-      suffix: 贝壳
