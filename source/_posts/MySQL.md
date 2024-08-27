@@ -1455,7 +1455,10 @@ delete from user where id = 1;
 update user set name = "zhan" where id = 1; 
 ```
 
-当开启多个事务，在执行上述的SQL时，发现行锁升级为了表锁。 导致该update语句的性能大大降低。
+当开启多个事务，在执行如下的SQL时，发现行锁升级为了表锁(因为没有走索引，走的是全表扫描)。 导致该update语句的性能大大降低。
+```mysql
+update user set name = "zhan" where name = "mahua"; 
+```
 
 > InnoDB的行锁是针对索引加的锁，不是针对记录加的锁 ,并且该索引不能失效，否则会从行锁升级为表锁 。
 
