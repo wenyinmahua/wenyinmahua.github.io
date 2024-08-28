@@ -601,9 +601,9 @@ public Result<String> upload(MultipartFile file) throws IOException {
 public class AliOssUtil {
 
 	private static String endpoint = "oss-cn-beijing.aliyuncs.com";
-	private static String accessKeyId = "LTAI5tJE7wkcvP31kWkwSgmk";
-	private static String accessKeySecret = "GwF4roG8mbJMTURJbXSA5SesAR6sgX";
-	private static String bucketName = "big-event-mmh";
+	private static String accessKeyId = "accessKeyId";
+	private static String accessKeySecret = "accessKeySecret";
+	private static String bucketName = "bucket-name";
 
 	/**
 	 * 文件上传
