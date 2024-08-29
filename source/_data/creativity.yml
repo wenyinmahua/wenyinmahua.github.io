@@ -6,6 +6,9 @@
     - name: Docker
       color: "#57b6e6"
       icon: https://bu.dusays.com/2023/04/09/643293b0f0abe.png
+    - name: MySQL
+      color: "#e88e00"
+      icon: https://tse1-mm.cn.bing.net/th/id/OIP-C.peU5b4iXsv9YM_os6ZD7CgAAAA?w=172&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7
     - name: Python
       color: "#fff"
       icon: https://bu.dusays.com/2023/04/09/643293b1230f7.png
