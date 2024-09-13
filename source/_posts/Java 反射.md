@@ -1,8 +1,8 @@
 ---
-title: 反射
+title: Java 反射
 date: 2023-06-21
 comments: true
-category: Java
+category: java
 tags:
   - 基础
 cover: https://tse4-mm.cn.bing.net/th/id/OIP-C._Lm_T3scKhVEVFC54gcRxwHaE8?w=249&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7

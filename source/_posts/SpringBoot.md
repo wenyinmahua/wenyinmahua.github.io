@@ -2,7 +2,6 @@
 title: SpringBoot
 date: 2023-09-20
 updated: 2024-07-01
-sticky: 3
 comments: true
 category: SpringBoot
 cover: https://tse3-mm.cn.bing.net/th/id/OIP-C.ZcK6buln_11JJkcngHzg4gHaC1?w=301&h=134&c=7&r=0&o=5&dpr=1.3&pid=1.7
