@@ -1,5 +1,5 @@
 ---
-title: 集合源码
+title: Java 集合
 date: 2023-08-21
 updated: 2023-10-15
 comments: true
@@ -9,6 +9,278 @@ tags:
   - 源码
 cover: https://tse1-mm.cn.bing.net/th/id/OIP-C.n4zVeHFdrJSVnHqSy0wd5AHaEd?w=275&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7
 ---
+
+
+
+
+
+# Java 集合
+
+- 使用工具类 `Arrays.asList()` 把数组转换成集合时，不能使用其修改集合相关的方法， 它的 `add/remove/clear` 方法会抛出 `UnsupportedOperationException` 异常。
+- `Arrays.asList()` 方法返回的并不是 `java.util.ArrayList` ，而是 `java.util.Arrays` 的一个内部类,这个内部类并没有实现集合的修改方法或者说并没有重写这些方法。
+
+
+
+### 1. Java 集合框架
+
+存放单一元素Collection：
+
+- Set（无序、不可重复）
+  - HashSet（哈希表） 基于 HashMap 实现，底层使用 HashMap 保存元素。
+    - 当把一个对象加入 HashSet 时，HashSet 会计算出对象的 hashCode 值来判断对象加入的地址，同时也会与其他加入的对象的 hashCode 进行比较，如果没有相符的 HashCode，那么 HahsSet 就会假设对象没有重复小狐仙，如果有相同的 hashCode，那么旧通过 equals 判断 两个对象是否相等，如果相等，就不会让加入操作成功。
+    - LinkedHashSet
+  - SortedSet（接口）
+    - TreeSet（有序，唯一）红黑树（自平衡的排序二叉树）
+- List（有序、可重复的）
+  - ArrayList（数组）
+  - LinkedList（1.7之后不是循环链表了，单纯的链表）
+  - Vector
+    - Stack
+- Queue（有序，可重复的，有先后顺序） 
+  - Deque（接口）
+    - ArrayDeque：可扩容的动态双向数组。
+    - LinkedList
+  - PriorityQueue：数组实现小顶堆
+  - DelayQueue
+
+存放键值对 Map：（key 是无序的，不可重复的，value是无需的，可重复的，每个键最多映射到一个值）
+
+一般 数组 是主体，链表和红黑树是为了解决 hash 冲突
+
+- HashMap（数组+链表+红黑树）64-8 （树化（红黑树）以加快查询）
+  - 长度是2 的次幂
+    - 位运算效率更高
+    - 更好地保证哈希值均匀分布
+    - 是扩容变得简单高效
+
+  - LinkedHashMap（链表+哈希表）
+
+- Hashtable（数组+链表）
+- SortedMap
+  - TreeMap（红黑树，自平衡的排序二叉树）
+
+### 2. List
+
+#### 1. ArrayList 和 Array 的区别
+
+- 动态数组
+- 可以扩容
+- 使用泛型保证类型的安全
+- 只能存储对象
+- 支持插入、删除、遍历等操作
+- 不需要指定大小
+
+
+
+#### 2. ArrayList 和 Vector 的区别？
+
+- 都是使用 Object [] 存储
+- 线程安全
+- 一个是主要实现类，一个是古早实现类
+
+
+
+#### 3.ArrayList 和 LinkedList 的区别
+
+- 都是线程不安全的，不同步
+- 一个使用数组，一个双向链表
+- 插入和删除元素效率不一样
+- 支持快速访问
+- 内存占用
+
+#### 4. Vector 和 Stack 的区别
+
+- 都是线程安全，使用 synchronized 关键字进行同步处理。
+- Stack 继承 Vector，是一个后进先出的栈，Vector 是一个列表
+
+
+
+### 3. Set
+
+#### 1. Comparable 和 Comparator 的区别
+
+
+
+#### 2.HashSet、LinkedHashSet 和 TreeSet 的区别
+
+- 实现了 Set 接口，线程不安全，元素唯一
+- 底层数据结构不同
+
+
+
+### 4.Queue
+
+#### 1.Queue 和 Deque 的区别
+
+- Queue：单端队列
+
+  - | Queue 接口   | 抛出异常 | 返回特殊值 |
+    | ------------ | -------- | ---------- |
+    | 插入队列     | add      | offer      |
+    | 删除队首     | remove   | poll       |
+    | 查询队首元素 | element  | peek       |
+
+- Deque：双端队列
+
+  - | Deque 接口   | 抛出异常    | 返回特殊值 |
+    | ------------ | ----------- | ---------- |
+    | 插入队首     | addFirst()  | offerFirst |
+    | 插入队尾     | addLast()   | offerLast  |
+    | 删除队首     | removeFirst | pollFirst  |
+    | 删除队尾     | removeLast  | pollLast   |
+    | 查询队首元素 | getFirst    | peekFirst  |
+    | 查询队尾     | getLast     | peekLast   |
+
+
+
+#### 2. BlockingQueue 阻塞队列
+
+BlockingQueue 是一个接口，继承自 Queue，BlockingQueue阻塞的原因是因为器支持的队列没有元素时一致阻塞，直到有元素，还支持如果队列已满，一直等到队列可以放入新元素时再放入。
+
+- ArrayBlockingQueue：使用数组实现的有界阻塞列表。在创建时需要只当容量大小，并支持公平和非公平两种方式的锁访问机制。
+- LinkedBlockingQueue：使用单项链表实现的可选有界阻塞队列，在创建时可以指定默认大小，不指定就是 Integer.MAX_VALUE;
+- PriorityBlockingQueue：支持优先级排序的无界限阻塞队列，必须实现 Comparable 接口或者在构造函数中传入 Comparator 对象，不能插入null
+- SynchronousQueue：同步队列，不存储元素的阻塞队列
+- DelayQueue：延迟到特定的时间才能出队
+
+
+
+##### ArrayBlockingQueue 和 LinkedBlockingQueue 的区别
+
+- 线程安全
+- 底层实现：数组、链表
+- 有界：需要指定大小，不需要指定大小
+- 锁是否分离：没有分离，分离
+- 内存占用：提前分配、根据元素的增加逐渐占用内存。
+
+
+
+
+
+### 5. Map
+
+#### 1. HashMap 和 Hashtable 的区别
+
+- 线程不安全 synchronized
+- 效率较高
+- 支持 nullkey 和 nullValue，Hashtable 不支持
+- 初始容量大小和扩容大小不一样
+  - HashMap：16 - 2 （给定容量会扩充为 2 的幂次方大小）
+    - 位运算更快；
+  - Hashtable：11 - 2n+1
+
+
+
+#### 2. HashMap 和 HashSet 的区别
+
+- HashSet 底层基于 HashMap 实现的
+
+- hashSet 仅存储对象、HashMap 存储键值对
+
+- add、put
+
+  
+
+#### 3. HashMap 和 TreeMap 的区别
+
+- 都是继承自 AbstractMap
+- 
+
+#### 4.ConcurrentHashMap 和 Hashtable 的区别
+
+- 底层数据结构：分段数组+链表/红黑树；数组+链表
+- 线程安全：放弃了 Segment 概念，直接使用 Node数组+；链表+红黑树实现，并发控制使用 synchronized 和 CAS 来操作；     使用 synchronized 保证线程的安全，效率低
+
+
+
+
+
+### fail-fast机制
+
+多个线程对 fail-fast 集合进行修改时，可能会抛出一个 ConcurrentModificationException。单线程下也会出现这种问题。
+
+fail-fast：一种错误检测机制，一旦检测到可能发生错误，就立马抛出异常，程序不继续往下执行。（在 for 循环中删除、增加元素）如下代码:(存放数字类型的不一定删除时不一定会出现 ConcurrentModificationException 异常)
+
+```Java
+public static void main(String[] args) {
+    List<String> list = new ArrayList<>();
+    list.add("Mahua");
+    list.add("tyut");
+    list.add("aaa");
+    for (String item : list){
+       if (item.equals("aaa")){
+          list.remove("aaa");
+       }
+    }
+}
+```
+
+原因：增强 for 使用的是迭代器 Iterator。iterator 的 next 方法会抛出异常：
+
+```java
+final void checkForComodification() {
+    if (modCount != expectedModCount)
+        throw new ConcurrentModificationException();
+}
+```
+
+**解决方法**：
+
+- 使用普通 for(根本原因在于迭代器 Integer 的 next 方法抛出异常)
+  ```java
+  for (int i = 0; i < list.size(); i++){
+      if (list.get(i).equals("aaa")){
+          list.remove(i);
+      }
+  }
+  ```
+
+- 直接使用 Iterator
+
+  ```java
+  Iterator iterator = list.iterator();
+  while(iterator.hashNext){
+      if(iterator.next().equals("mahua")){
+          list.removve("mahua");
+      }
+  }
+  ```
+
+- Java 8 中提供的 filter，在增强for 进行删除操作之后，立即结束循环体，不再就行遍历；
+
+  ```java
+  List<String> newList = list.stream().filter(item -> !item.equals("aaa")).collect(Collectors.toList());
+  ```
+
+- 直接使用 fail-safe 机制的集合类(如：ConcurrentLinkedDeque)（这类集合遍历时，不是直接在集合内容上访问，而是先复制集合内容，在拷贝的集合上进行遍历，修改是在原集合上，不会被迭代器检测到）
+
+  ```java
+  public static void main(String[] args) {
+      ConcurrentLinkedDeque<String> list = new ConcurrentLinkedDeque<>();
+      list.add("Mahua");
+      list.add("tyut");
+      list.add("aaa");
+      for (String item : list){
+          if (item.equals("aaa")){
+              list.remove(item);
+          }
+      }
+      System.out.println(list);
+  }
+  ```
+
+- 在移除元素时直接结束循环
+
+  ```java
+  for (String item : list){
+      if (item.equals("aaa")){
+          list.remove(item);
+          break;
+      }
+  }
+  ```
+
+
 
 
 
@@ -22,15 +294,15 @@ int 的最大值是 $2^{31}-1$ ( 4 个字节)
 
 ## ArrayList 分析
 
-ArrayList 底层是数组队列，即动态数组。
+ArrayList 底层是数组队列，即动态数组，容量能动态增长。
 
 > 总结：
 >
 > ArrayList 如果不指定初始容量大小，那么在创建的时候容量大小默认是10；
 >
-> - DEFAULT_CAPACITY：仅空数组；
-> - EMPTY_ELEMENTDATA：空数组，如果使用有参构造器指定初始容量大小为0，那么那么ArrayList 对象就会指向这个；
-> - DEFAULTCAPACITY_EMPTY_ELEMENTDATA：默认空数组，如果通过无参构造器创建 ArrayList 对象，那么ArrayList 对象就会指向这个，同时长度也变成了DEFAULT_CAPACITY，即为10；
+> - DEFAULT_CAPACITY：未指定链表长度时列表数组的长度，值为 10；
+> - EMPTY_ELEMENTDATA：空数组，如果使用有参构造器指定初始容量大小为0，那么ArrayList 对象就会指向这个空数组；
+> - DEFAULTCAPACITY_EMPTY_ELEMENTDATA：默认空数组，与上面的那个空数组区分开，以了解在添加第一个元素时要扩容多少。如果通过无参构造器创建 ArrayList 对象，那么ArrayList 对象就会指向这个空数组，同时长度也变成了 DEFAULT_CAPACITY，即为10；
 > - 使用有参（集合）构造器创建 ArrayList 对象的时候，如果长度 = 0，那么实际是DEFAULT_CAPACITY；
 > - 扩容机制： int newCapacity = oldCapacity + (oldCapacity >> 1);扩大 1.5 倍左右（考虑奇数要丢掉 `>>>1`后的小数点 ）
 >   - 如果增加元素后数组的长度 > 存放数据的数组长度，那么就开始扩容，否则不扩容。

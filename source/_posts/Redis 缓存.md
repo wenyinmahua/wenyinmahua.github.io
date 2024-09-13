@@ -1,7 +1,7 @@
 ---
 title: Redis 缓存
 date: 2024-01-20
-updated: 2024-01-20
+updated: 2024-09-10
 tags: 
   - 实战
   - 面试
@@ -13,7 +13,7 @@ cover: https://tse4-mm.cn.bing.net/th/id/OIP-C.Jed-UVwaIqf16oq5f8ATDQHaE8?w=251&
 # Redis 缓存
 > 总结:
 > - **缓存穿透：**因为查询一个数据库中没有的数据，缓存不命中，请求穿过缓存，直接请求数据库了。
->   - 布隆过滤器（会误判一个元素存在与集合中，但是实际上不存在。说不存在一定不存在，但是存在不一定存在）原理：bitmap + hash 函数；布隆过滤器需要放在访问缓存的之前执行。
+>   - 布隆过滤器（如果布隆过滤器说一个元素不存在，则这个元素一定不存在；但如果布隆过滤器说一个元素存在，则可能存在误报的情况）原理：bitmap + hash 函数；布隆过滤器需要放在访问缓存的之前执行。
 >   - 缓存空结果（null，注意要设置缓存过期时间，不然有了数据还会查询出为 null）
 > - **缓存雪崩：**某一个时间段内**大量的 key** 过期失效或 Redis 宕机，导致所有的请求全部落到数据库上，造成数据库瞬间压力过大。
 >   - 设置缓存过期的时间为随机。防止很多缓存同时过期
@@ -28,7 +28,7 @@ cover: https://tse4-mm.cn.bing.net/th/id/OIP-C.Jed-UVwaIqf16oq5f8ATDQHaE8?w=251&
 
 > 缓存一致性问题：
 >
-> 缓存一致性问题是指数据在多个地方（数据库、缓存）存储时，这些地方的数据出现了不一致的情况，可能是由于：缓存更新滞后、系统故障或其他元婴引起的。
+> 缓存一致性问题是指数据在多个地方（数据库、缓存）存储时，这些地方的数据出现了不一致的情况，可能是由于：缓存更新滞后、系统故障或其他原因引起的。
 >
 > 实时一致性：在任何时刻，所有的客户端看到的数据都是一样的（都能看到操作的结果）。
 >
@@ -46,7 +46,7 @@ cover: https://tse4-mm.cn.bing.net/th/id/OIP-C.Jed-UVwaIqf16oq5f8ATDQHaE8?w=251&
 > 缓存更新策略：
 >
 > - Write through cache（直写缓存）：先将数据写入缓存，之后立即将新的缓存数据复制到数据库。（可以保证写操作的一致性，但是可能会影响写操作的性能）
-> - Write back cache（写回缓存）：数据库首先写入缓存，然后由缓存异步写入数据库（提高了写操作的性能，但是增加了数据丢失的风险）
+> - Write back cache（写回缓存）：数据首先写入缓存，然后由缓存异步写入数据库（提高了写操作的性能，但是增加了数据丢失的风险）
 > - Write around cache（绕写缓存）：绕过缓存，直接写数据库，然后依据需要更新缓存或使缓存失效。（适用于更频繁读写操作的场景）
 
 
@@ -403,7 +403,7 @@ public class UserService {
         // 设置数据
         redisData.setData(user);
         // 设置逻辑过期时间
-        redisData.setExpireTime(LocalDataTime.now().plusSeconds(expireSeconds));
+        redisData.setExpireTime(LocalDateTime.now().plusSeconds(expireSeconds));
         // 放入缓存
         stringRedisTemplate.opsForValue.set(CACHE_KEY+id,JSONUtil.toJsonStr(redisData));
     }
@@ -419,11 +419,10 @@ private static final ExecutorService CACHE_REBUILD_EXECUTOR = Executors.newFixed
 public void updateCache(){
      CACHE_REBUILD_EXECUTOR.submit( ()->{
         try{
-            this.updateCache();
+            // 更新缓存的数据
+            this.save();
         }catch (Exception e){
             throw new RuntimeException(e);
-        }finally {
-            unlock(lockKey);
         }
     });
 }
