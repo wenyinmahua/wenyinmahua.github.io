@@ -1,11 +1,10 @@
 ---
 title: JVM 基础
 date: 2024-08-24
-comments: true
-comments: true
-category: Spring
+updated: 2024-08-24
+category: JVM
 tags:
-  - 阅读
+  - 笔记
 cover: https://tse2-mm.cn.bing.net/th/id/OIP-C.iK1EFamgj6pjOvuhROEFNAHaEK?w=305&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7
 ---
 
@@ -13,7 +12,7 @@ cover: https://tse2-mm.cn.bing.net/th/id/OIP-C.iK1EFamgj6pjOvuhROEFNAHaEK?w=305&
 
 
 
-# JVM基础
+# JVM 基础（一）了解 JVM
 
 对源代码进行编译（javac）之后拿到的是字节码（字节码是一种中间代码，而且还算是能读吧，可读性较差一点），字节码不是机器语言（即不能被机器识别，被机器直接允许），想要其被机器识别就要将其解释成能被机器识别的代码（如机器码等），怎么实现这一步呢？交给 JVM 来实现吧！不同的操作系统（Windows、Mac、Linux）有配上了不同的 JVM，这样使同一份字节码文件能被不同平台的 JVM 解释，这下跨平台实现啦！
 
@@ -274,7 +273,7 @@ jad命令可以将类的字节码文件进行反编译成源代码，用于确�
 
 ![类的生命周期](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240830101730751.png)
 
-### 3.1 加载阶段
+#### 3.1 加载阶段
 
 - 获取字节码信息，将类的信息保存到方法区，
 - 在方法区生成一个 **InstanceKlass** 对象，保存类的全部信息，
@@ -300,7 +299,7 @@ jad命令可以将类的字节码文件进行反编译成源代码，用于确�
 
 
 
-### 2. 连接阶段
+#### 3.2 连接阶段
 
 连接阶段分为三个子阶段:
 
@@ -315,7 +314,7 @@ jad命令可以将类的字节码文件进行反编译成源代码，用于确�
 
 
 
-### 3. 初始化阶段
+#### 3.3 初始化阶段
 
 > 代码编译成字节码文件之后，会生成三个方法：
 >
@@ -519,7 +518,8 @@ public class jvm/ClassTest {
 
 ## 3.类加载器
 
-JVM 本来就是运行在计算机上的程序。
+- JVM 本来就是运行在计算机上的程序。
+- 类加载 并不意味着 类被初始化。
 
 类加载器：Java 虚拟机提供给**应用程序**去实现获取**类和接口字节码数据**的**技术**，**类加载器只参与加载过程中的字节码获取并加载到内存这一部分。**（通过二进制的方式获取字节码文件的内容，将数据交给 JVM）
 
@@ -530,27 +530,35 @@ JVM 本来就是运行在计算机上的程序。
 
 类加载器的涉及 JDK 8 和 8 之后差别较大
 
-JDK8及之前的版本中默认的类加载器有如下几种：
+JDK8 及之前的版本中默认的类加载器有如下几种：
 
-![JDK8 及之前的类加载器](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/asynccode)
+在 `rt.jar` 包的 `sun.misc.Launcher` 包中
 
-类加载器的详细信息可以通过Arthas的classloader命令查看：
-
-> `classloader` - 查看 classloader 的继承树，urls，类加载信息，使用 classloader 去 getResource
-
-![img](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/asynccode)
-
-- BootstrapClassLoader是启动类加载器，numberOfInstances是类加载器的数量只有1个，loadedCountTotal是加载类的数量1861个。
-- ExtClassLoader是扩展类加载器
-- AppClassLoader是应用程序类加载器
+![JDK8 及之前的类加载器](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/3ef6c8e6-e204-410c-8733-5206d8f1bb43.png)
 
 
 
 ### 3.2 启动类加载器
 
-- 启动类加载器（Bootstrap ClassLoader）是由Hotspot虚拟机提供的、使用C++编写的类加载器。
-- 默认加载 Java 安装目录 /jre /lib下的类文件，比如 rt.jar，tools.jar，resources.jar 等。
-- 无法通过  String.class.getClassLoader(); 获取 String 类的类加载器，因为启动类加载器再 JDK8 是通过 C++ 写的，在Java 代码中获取是不安全的，返回的是 null；
+- 启动类加载器（Bootstrap ClassLoader）是由 `Hotspot` 虚拟机提供的、使用 `C++` 编写的类加载器。
+- 默认加载 Java 安装目录 `/jre /lib`下的类文件，比如 rt.jar，tools.jar，resources.jar 等。
+
+
+
+通过如下代码获取 String 类的累加器并将其打印下来：
+
+```java
+public class BootstrapClassLoaderDemo {
+    public static void main(String[] args) throws IOException {
+        ClassLoader classLoader = String.class.getClassLoader();
+        System.out.println(classLoader); // 输出Null
+
+        System.in.read();
+    }
+}
+```
+
+无法通过  String.class.getClassLoader(); 获取 String 类的类加载器，因为启动类加载器再 JDK8 是通过 C++ 写的，在Java 代码中获取是不安全的，返回的是 null；
 
 
 
@@ -559,59 +567,426 @@ JDK8及之前的版本中默认的类加载器有如下几种：
 如果用户想扩展一些比较基础的jar包，让启动类加载器加载，有两种途径：
 
 - **放入jre/lib下进行扩展**。不推荐，尽可能不要去更改JDK安装目录中的内容，会出现即时放进去由于文件名不匹配的问题也不会正常地被加载。
-- **使用参数进行扩展。**推荐，使用-Xbootclasspath/a:jar包目录/jar包名 进行扩展，参数中的/a代表新增。
+- **使用参数进行扩展。**推荐，使用 `-Xbootclasspath/a:jar包目录/jar包名` 进行扩展，参数中的/a代表新增。
 
 
 
 
 
+### 3.3 扩展类加载器和应用程序类加载器
+
+- 都是 JDK 提供的，使用 Java 语言编写的类加载器，是**静态内部类**，继承自 `URLClassLoader`。具备通过目录或者指定 jar 包**将字节码文件加载到内存**中。
+
+![类加载器的继承关系](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/eea2c3f7-c944-453e-95e7-5b5ce3ab36a7.png)
+
+- `ClassLoader ` 类定义了具体的**行为模式**，简单来说就是先从本地或者网络获得字节码信息，然后调用虚拟机底层的方法**创建方法区和堆上的对象**。这样的好处就是让子类只需要去实现如何获取字节码信息这部分代码。
+- `SecureClassLoader` 提供了证书机制，提升了安全性。
+- `URLClassLoader` 提供了根据 `URL` **获取目录下或者指定 jar 包进行加载，获取字节码的数据。**
+- 扩展类加载器和应用程序类加载器继承自 URLClassLoader，获得了上述的三种能力。
+
+
+
+#### 3.3.1 扩展类加载器
+
+扩展类加载器（Extension Class Loader）默认加载 java 安装目录 `/jre/lib/ext` 下的类文件
+
+![jre](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240917122241694.png)
+
+
+
+![扩展类加载器加载的 jar 包](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240917122315192.png)
+
+
+
+通过扩展类加载器去加载用户jar包：
+
+- **放入/jre/lib/ext下进行扩展**。不推荐，尽可能不要去更改 JDK 安装目录中的内容。
+- **使用参数进行扩展使用参数进行扩展**。推荐，使用 `-Djava.ext.dirs="jar包目录"` 进行扩展,这种方式会覆盖掉原始目录，可以用;(windows):(macos/linux)追加上原始目录
+
+
+
+#### 3.3.2 应用程序 类加载器
+
+应用程序类加载器会加载 `classpath` 下的类文件，默认加载的是 `项目中的类`以及通过 `maven 引入的第三方 jar 包中的类`。
+
+
+
+### 3.4 双亲委派机制
+
+- 自底向上判断是否加载过，是就返回；
+- 自顶向下判断是否能加载，是就加载。
+
+双亲委派机制指的是：当一个类加载器接受到加载类的任务的时候，会自底向上查找是否加载过，再由顶向下进行加载。每个类都有一个父类加载器，但是**启动类加载器没有父类加载器**。
+
+![双亲委派机制](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/04513c52-e20b-4b0f-a82e-8084da860eb5.png)
+
+在类加载的过程中，每个类加载器都会先检查是否已经加载了该类，如果已经加载则直接返回，否则会将加载请求委派给父类加载器。
+
+
+
+#### 双亲委派机制的作用
+
+1.保证类加载的安全性。通过双亲委派机制避免恶意代码替换 JDK 中的核心类库，比如 java.lang.String，确保核心类库的完整性和安全性。
+
+2.避免重复加载。双亲委派机制可以避免同一个类被多次加载。
 
 
 
 
 
+#### 如何指定加载类的类加载器
+
+- 使用 `Class.forName()` 方法，使用当前类的类加载器去加载指定的类；
+- 获取到类加载器，通过类加载器的 loadClass 方法指定某个类加载器加载；
+
+```java
+public class ClassLoaderTest {
+
+	public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+
+		ClassLoader classLoader = ClassLoaderTest.class.getClassLoader();
+		System.out.println(classLoader);
+		Class<?> aClass = classLoader.loadClass("jvm.Test2");
+	}
+}
+```
+
+
+
+String类能覆盖吗，在自己的项目中去创建一个java.lang.String类，会被加载吗？
+
+- 不能，会返回启动类加载器加载在 rt.jar 包中的 String 类。
+
+
+
+#### 打破双亲委派系统
+
+- 自定义类加载器继承 ClassLoader 并重写 loadClass 方法
+- 利用线程上下文类加载器
+- 使用 Osgi 等框架的类加载器
 
 
 
 
 
+### JDK 9 之后的类加载器
+
+1.启动类加载器使用 Java 编写，位于 jdk.internal.loader.ClassLoaders 类中。
+
+   Java 中的 BootClassLoader 继承自 BuiltinClassLoader 实现从模块中找到要加载的字节码资源文件。
+
+   启动类加载器依然无法通过 java 代码获取到，返回的仍然是 null ，保持了统一。
+
+2、扩展类加载器被替换成了平台类加载器（Platform Class Loader）。
+
+​     平台类加载器遵循模块化方式加载字节码文件，所以继承关系从 URLClassLoader 变成了 `BuiltinClassLoader`，BuiltinClassLoader 实现了从模块中加载字节码文件。平台类加载器的存在更多的是为了与老版本的设计方案兼容，自身没有特殊的逻辑。
 
 
 
 
 
+## 4.运行时数据区
+
+Java 虚拟机在运行 Java 程序过程中**管理的内存区域**，称之为运行时数据区。
+
+![运行时数据区](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/output.png)
+
+
+
+### 4.1 程序计数器
+
+程序计数器（Program Counter Register）PC寄存器
+
+- 每个线程会通过程序计数器来记录**当前要执行（即下一行）的字节码指令的偏移量地址**。（在 JVM 中，字节码文件中的指令并不会直接以偏移量的形式转换为内存地址）
+-  程序计数器存储的是一个指向当前线程将要执行的下一行字节码指令的索引。
+
+程序计数器可以控制程序指令的进行，实现分支、跳转、异常等逻辑。不管是分支、跳转、异常，只需要在程序计数器中放入下一行要执行的指令地址即可。
+
+在多线程执行情况下，Java 虚拟机需要通过程序计数器记录 CPU 切换前解释执行到那一句指令并继续解释运行。
+
+
+
+### 4.2 Java虚拟机栈
+
+Java虚拟机栈（Java Virtual Machine Stack）采用栈的数据结构来管理**方法调用中的基本数据**，先进后出（First In Last Out）,每一个方法的调用使用一个栈帧（Stack Frame）来保存。
+
+Java虚拟机栈随着线程的创建而创建，而回收则会在线程的销毁时进行。由于方法可能会在不同线程中执行，每个线程都会包含一个自己的虚拟机栈。
+
+Java 虚拟机栈的栈帧中主要包含三方面的内容：
+
+- **局部变量表**：局部变量表的作用是在运行过程中存放所有的局部变量
+- **操作数栈**：操作数栈是栈帧中虚拟机在执行指令过程中用来存放临时数据的一块区域
+- **帧数据**：帧数据主要包含动态链接、方法出口、异常表的引用
+
+
+
+#### 局部变量表
+
+局部变量表的作用是在方法执行过程中存放所有的局部变量。局部变量表分为两种：
+
+- 字节码文件中的
+  - 编译成字节码文件时就可以确定局部变量表的内容。
+  - 在局部变量表中，变量下标从 0 开始
+- 栈帧中的，也就是保存在内存中
+  - 栈帧中的局部变量表是根据字节码文件中的内容生成的。
+  - 栈帧中的局部变量表是一个`数组`，数组长度在编译期间就确定了，数组中每一个位置称之为槽(slot) ，long 和 double 类型占用两个槽，其他类型占用一个槽。
+
+> - 静态方法中的序号为 0 的位置存放的就是该方法中的变量；
+> - 实例方法中的序号为0的位置存放的是 `this`，指的是当前调用方法的对象，运行时会在内存中存放实例对象的地址。
+> - 方法参数也会保存在局部变量表中，其顺序与方法中参数定义的顺序一致。局部变量表保存的内容有：实例方法的`this`对象，方法的参数，方法体中声明的局部变量。
+
+
+
+#### 操作数栈
+
+操作数栈是栈帧中虚拟机在执行指令过程中用来存放中间数据的一块区域。他是一种栈式的数据结构，如果一条指令将一个值压入操作数栈，则后面的指令可以弹出并使用该值。
+
+在编译期就可以确定操作数栈的最大深度，从而在执行时正确的分配内存大小。
+
+
+
+#### 帧数据
+
+帧数据主要包含动态链接、方法出口、异常表的引用。
+
+##### 动态链接
+
+当前类的字节码指令引用了其他类的属性或者方法时，需要将符号引用（编号）转换成对应的运行时常量池中的内存地址。
+
+- 动态链接就保存了编号到运行时常量池的内存地址的映射关系。
+
+##### 方法出口
+
+方法出口指的是方法在**正确或者异常结束**时，当前栈帧会被弹出，同时**程序计数器应该指向上一个栈帧中的下一条指令的地址。**
+
+##### 异常表
+
+异常表存放的是代码中异常的处理信息，包含了异常捕获的生效范围以及异常发生后跳转到的字节码指令位置。
+
+
+
+#### 栈内存溢出
+
+Java虚拟机栈如果栈帧过多，占用内存超过栈内存可以分配的最大大小就会出现内存溢出。Java 虚拟机栈内存溢出时会出现 `StackOverflowError` 的错误。
+
+如果不指定栈的大小，JVM 将创建一个具有默认大小的栈。大小取决于操作系统和计算机的体系结构。
+
+要修改 Java 虚拟机栈的大小，可以使用虚拟机参数 `-Xss` 。
+
+- 语法：-Xss栈大小
+- 单位：字节（默认，必须是 1024 的倍数）、k或者K(KB)、m或者M(MB)、g或者G(GB)
+
+```Java
+-Xss1048576 
+-Xss1024K      
+-Xss1m
+-Xss1g
+```
+
+> IDEA版本的设置方式：
+>
+> 1、点击修改配置Modify options
+>
+> 2、点击Add VM options
+>
+> 3、添加参数
+
+**注意事项：**
+
+1. 与-Xss类似，也可以使用 -XX:ThreadStackSize 调整标志来配置堆栈大小。
+
+格式为： `-XX:ThreadStackSize=1024`
+
+2. HotSpot JVM对栈大小的最大值和最小值有要求：
+
+   比如测试如下两个参数，会直接报错:
+
+```
+-Xss1k
+-Xss1025m
+```
+
+Windows（64位）下的JDK8测试最小值为`180k`，最大值为`1024m`。
+
+3. 局部变量过多、操作数栈深度过大也会影响栈内存的大小。
+
+> 一般情况下，工作中即便使用了递归进行操作，栈的深度最多也只能到几百,不会出现栈的溢出。所以此参数可以手动指定为-Xss256k节省内存。
+
+
+
+### 4.3 本地方法栈
+
+- Java 虚拟机栈存储了 `Java` 方法调用时的栈帧，
+- 本地方法栈存储的是 `native` 本地方法的栈帧。
+
+在 Hotspot 虚拟机中，**Java 虚拟机栈和本地方法栈实现上使用了同一个栈空间。** 本地方法栈会在栈内存上生成一个栈帧，临时保存方法的参数同时方便出现异常时也把本地方法的栈信息打印出来。
+
+![栈空间的使用](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/6fe9420a-b06d-40d8-b8ec-5504d247b301.png)
+
+
+
+### 4.4 堆内存
+
+> - 一般 Java 程序中**堆内存是空间最大的一块内存区域**。
+> - **创建出来的对象都存在于堆上。**
+> - 栈上的局部变量表中，可以**存放堆上对象的引用**。
+> - 静态变量也可以存放堆对象的引用，通过静态变量就可以实现对象在线程之间共享。
+> - 堆内存大小是有上限的，当对象一直向堆中放入对象达到上限之后，就会抛出 `OutOfMemory` 错误。
+
+通过`new`关键字创建了两个`Student`类的对象，这两个对象会被存放在堆上。在栈上通过`s1`和`s2`两个局部变量保存堆上两个对象的地址，从而实现了引用关系的建立。
+
+![堆内存](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/c5cf0920-fda7-4045-b013-956ad32eb93b.png)
+
+
+
+#### 堆内存的三个重要的值
+
+堆空间有三个需要关注的值: used、total、max。
+
+- used 指的是当前已使用的堆内存，
+- total 是 java 虚拟机已经分配的可用堆内存，
+- max 是 java 虚拟机可以分配的最大堆内存。
+
+堆内存used total max三个值可以通过`arthas` 的 `dashboard` 命令看到。
+
+> 手动指定刷新频率（不指定默认5秒一次）：`dashboard –i  刷新频率(毫秒)`
+
+1. 随着堆中的对象增多，当 total 可以使用的内存即将不足时，java 虚拟机会继续分配内存给堆。
+2. 此时 used 达到了 total 的大小，Java 虚拟机会向操作系统申请更大的内存。
+3. 但是这个申请过程不是无限的，total 最多只能与 max 相等。
+
+> 如果不设置任何的虚拟机参数，max 默认是系统内存的 `1/4`，total 默认是系统内存的 `1/64`。在实际应用中一般都需要设置 total 和 max 的值。
+
+
+
+#### 设置堆的大小
+
+要修改**堆的大小**，可以使用虚拟机参数 `–Xmx（max最大值）`和 `-Xms (初始的 total)`。
+
+语法：`-Xmx值 -Xms值`
+
+单位：字节（默认，必须是 1024 的倍数）、k或者K(KB)、m或者M(MB)、g或者G(GB)
+
+限制：Xmx必须大于 2 MB，Xms必须大于1MB
+
+```Java
+-Xms6291456
+-Xms6144k
+-Xms6m
+-Xmx83886080
+-Xmx81920k
+-Xmx80m
+```
+
+查看堆的大小需要使用`arthas`的`memory`命令
+
+> **建议：**
+>
+> Java 服务端程序开发时，建议将 -Xmx 和 -Xms 设置为相同的值，这样在程序启动之后可使用的总内存就是最大内存，而无需向 java 虚拟机再次申请，减少了申请并分配内存时间上的开销，同时也不会出现内存过剩之后堆收缩的情况
+
+
+
+### 4.5 方法区
+
+方法区是存放**基础信息**的位置，**线程共享**，主要包含三部分内容：
+
+- **类的元信息**，保存了所有类的基本信息
+- **运行时常量池**，保存了字节码文件中的常量池内容
+- **字符串常量池**，保存了字符串常量
+
+
+
+#### 方法区的实现
+
+每款 Java 虚拟机在实现上都各不相同，Hotspot 设计如下：
+
+JDK7 及之前的版本将方法区存放在**堆区域**中的永久代空间，堆的大小由虚拟机参数来控制。`-XX:MaxPermSize=值来控制`
+
+- 永久代（Permanent Generation，PermGen）是Java虚拟机（JVM）中一个特定的内存区域，它主要用于存储类的信息、常量池、字段和方法数据（方法区）等。
+
+JDK8 及之后的版本将方法区存放在**元空间（Metaspace）**中，元空间位于**操作系统维护的直接内存**中，默认情况下只要不超过操作系统承受的上限，可以一直分配。可以使用d `-XX:MaxMetaspaceSize=值将元空间最大大小` 进行限制。
+
+![方法区的实现](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/74768bd5-d1a9-4fce-9488-1fb2c4cc7b51.png)
+
+如果大量字节码数据加载到方法区中，方法区会有**内存溢出**的情况。
+
+
+
+#### 类的元信息
+
+方法区是用来存储每个类的**基本信息**（元信息），一般称之为 `InstanceKlass` 对象。其中就包含了类的**字段**、**方法**等字节码文件中的内容，同时还保存了运行过程中需要使用的**虚方法表**（实现多态的基础）等信息。
+
+![类的元信息](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/efreferg1233242ef.png)
+
+#### 运行时常量池
+
+常量池中存放的是**字节码中的常量池内容**。
+
+- 字节码文件中通过**编号**查表的方式找到**常量**，这种常量池称为**静态常量池**。
+- 当常量池加载到内存中之后，可以通过**内存地址**快速的定位到常量池中的内容，这种常量池称为**运行时常量池**。
 
 
 
 
 
+#### 字符串常量池（StringTable）
+
+字符串常量池存储的是**代码中定义的常量字符串内容**。
+
+早期设计时，字符串常量池是属于运行时常量池的一部分，他们存储的位置也是一致的。后续做出了调整，将字符串常量池和运行时常量池做了拆分。
+
+![字符串常量池](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/c298a4d4-e2f7-40bf-a5a3-ed33ddfcb464.png)
 
 
 
+#### String的 intern
+
+`String.intern()` 方法是可以手动将字符串放入字符串常量池中。（对象拿到的是字符串常量池中的引用）
+
+```java
+public class InternTest {
+    public static void main(String[] args) {
+       String s1 = "1";
+       String s2 = "2";
+       String s3 = "12";
+       String s4 = s1 + s2;
+       String s5 = "1"+"2";
+       System.out.println(s3 == s4); // false 因为s3 直接指向了字符串常量池中的引用，而 s4 指向的是堆上的对象（这个过程中涉及了 StringBuilder 的 append 方法和 toString 方法，而 StringBuilder 对象的 toString 方法是返回一个 String 对象，即堆上的对象）
+       System.out.println(s4.intern() == s3); // true s4 通过 intern 指向了常量池中的引用，s3 也是
+       System.out.println(s4.intern() == s4); // false 一个是字符串常量池的引用，一个是堆上对象的引用
+       System.out.println(s5 == s3); // true 两个都是字符串常量池的引用
+    }
+}
+```
 
 
 
+####  面试题：静态变量存储在哪里呢？
+
+- JDK6及之前的版本中，静态变量是存放在方法区中的，也就是永久代。
+- JDK7及之后的版本中，静态变量是存放在堆中的Class对象中，脱离了永久代。
 
 
 
+### 4.6 直接内存
 
+> 直接内存不属于 Java 运行时的内存区域
 
+在 Java 中，将文件读取到直接内存中，同时 Java 堆上维护直接内存的引用，减少之前需要赋值直接内存中的文件的开销。
 
+![直接内存的使用](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/c4664b79-32b7-471b-85db-82287a10496c.png)
 
+#### 使用方法
 
+要创建直接内存上的数据，可以使用 `ByteBuffer`
 
+```java
+ByteBuffer directBuffer = ByteBuffer.allocateDirect(size); // 会创建一个 size 大小的直接内存
+```
 
+如果服务器上部署了其他应用，为了避免将内存耗尽，需要设置直接内存的最大值。如果需要手动调整直接内存的大小，可以使用`XX:MaxDirectMemorySize=大小`
 
-
-
-
-
-
-
-
-
-
-
+单位k或K表示千字节，m或M表示兆字节，g或G表示千兆字节。默认不设置该参数情况下，JVM 自动选择 最大分配的大小。
 
 
 
