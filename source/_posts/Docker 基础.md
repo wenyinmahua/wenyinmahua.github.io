@@ -96,7 +96,7 @@ docker run -d \
 
 
 
->  MySQL版本在 2024 年 7 月份已经变成 9.0 了，如果需要 8.0 执行下面的指令即可
+>  MySQL版本在 2024 年 7 月份推出了 9.0 版本，如果需要 8.0 执行下面的指令即可
 
 ```PowerShell
 docker run -d \
@@ -149,10 +149,10 @@ docker ps -a
 
 
 
-Docker 强制删除容器，以 MySQL 8.0  为例
+Docker 强制删除容器，以 MySQL 8.0 为例，之前创建的容器的名称为 mysql
 
 ```powershell
-docker rm -f mysql:8.0  # 这里的 mysql:8.0  使容器名
+docker rm -f mysql  # 这里的 mysql:8.0 是容器名，也可以替换成容器的 ID
 ```
 
 
@@ -273,7 +273,7 @@ docker run -d \
 
 ## 镜像
 
-> 如果想部署一个 java 项目，需要将其打包为一个镜像。
+> 如果想通过 Docker 部署一个 java 项目，需要将其打包为一个镜像。
 
 
 
@@ -303,22 +303,24 @@ docker run -d \
 
 ### Dockerfile
 
-由于制作镜像的过程中，需要逐层处理和打包，比较复杂，所以Docker就提供了自动打包镜像的功能。只需要将打包的过程，每一层要做的事情用固定的语法写下来，交给Docker去执行即可。
+由于制作镜像的过程中，需要逐层处理和打包，比较复杂，所以 Docker 就提供了自动打包镜像的功能。只需要将打包的过程，每一层要做的事情用固定的语法写下来，交给 Docker 去执行即可。
 
 而这种记录镜像结构的文件就称为**Dockerfile**，其常用的语法如下：
 
-| **指令**       | **说明**                                     | **示例**                     |
-| :------------- | :------------------------------------------- | :--------------------------- |
-| **FROM**       | 指定基础镜像                                 | `FROM centos:6`              |
-| **ENV**        | 设置环境变量，可在后面指令使用               | `ENV key value`              |
-| **COPY**       | 拷贝本地文件到镜像的指定目录                 | `COPY ./xx.jar /tmp/app.jar` |
-| **RUN**        | 执行Linux的shell命令，一般是安装过程的命令   | `RUN yum install gcc`        |
-| **EXPOSE**     | 指定容器运行时监听的端口，是给镜像使用者看的 | EXPOSE 8080                  |
-| **ENTRYPOINT** | 镜像中应用的启动命令，容器运行时调用         | ENTRYPOINT java -jar xx.jar  |
+| **指令**       | **说明**                                       | **示例**                     |
+| :------------- | :--------------------------------------------- | :--------------------------- |
+| **FROM**       | 指定基础镜像                                   | `FROM centos:6`              |
+| **ENV**        | 设置环境变量，可在后面指令使用                 | `ENV key value`              |
+| **COPY**       | 拷贝本地文件到镜像的指定目录                   | `COPY ./xx.jar /tmp/app.jar` |
+| **RUN**        | 执行 Linux 的 shell 命令，一般是安装过程的命令 | `RUN yum install gcc`        |
+| **EXPOSE**     | 指定容器运行时监听的端口，是给镜像使用者看的   | EXPOSE 8080                  |
+| **ENTRYPOINT** | 镜像中应用的启动命令，容器运行时调用           | ENTRYPOINT java -jar xx.jar  |
 
 
 
 ### 制作java镜像
+
+**基于 Java 8 openjdk:8-jdk-alpine 作为基础镜像**
 
 准备好一个 `jar` 包以及一个 `Dockerfile `
 
@@ -333,22 +335,25 @@ Dockerfile 内容
 
 ```Dockerfile
 # 基础镜像
-FROM openjdk:11.0-jre-buster
+FROM openjdk:8-jdk-alpine
 # 设定时区
 ENV TZ=Asia/Shanghai
+# 将容器内的时区设置为上海时区
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-# 拷贝jar包
+# 拷贝jar包到镜像中
 COPY docker-demo.jar /app.jar
+# 开放端口
+EXPOSE 8080
 # 入口
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 ```
 
 
 
-> 这段 Dockerfile 用于构建一个 Docker 镜像，该镜像基于 `openjdk:11.0-jre-buster` 镜像，并且配置了运行一个 Java 应用程序所需的环境。
+> 这段 Dockerfile 用于构建一个 Docker 镜像，该镜像基于 `openjdk:8-jdk-alpine` 镜像，并且配置了运行一个 Java 应用程序所需的环境。
 >
-> 1. `FROM openjdk:11.0-jre-buster`
->    - 指定基础镜像为 `openjdk:11.0-jre-buster`。
+> 1. `FROM openjdk:8-jdk-alpine`
+>    - 指定基础镜像为 `openjdk:8-jdk-alpine`。
 >
 > 2. `ENV TZ=Asia/Shanghai`
 >    - 设置环境变量 `TZ` 为 `Asia/Shanghai`，用于指定时区。
@@ -357,16 +362,18 @@ ENTRYPOINT ["java", "-jar", "/app.jar"]
 >    - 使用 `RUN` 指令执行命令，该命令创建了一个软链接，将 `/usr/share/zoneinfo/Asia/Shanghai` 链接到 `/etc/localtime`，并将时区名称写入 `/etc/timezone` 文件。这确保了容器内的时区设置为上海时区。
 >
 > 4. `COPY docker-demo.jar /app.jar`
->    - 使用 `COPY` 指令将本地目录中的 `docker-demo.jar` 文件复制到镜像的 `/` 目录下，并重命名为 `app.jar`。这意味着 Java 应用程序被打包成了一个名为 `docker-demo.jar` 的 JAR 文件，并且在构建镜像时会被复制到容器中。
+>    - 使用 `COPY` 指令将本地目录中的 `docker-demo.jar` 文件复制到镜像的 `/` 目录下，并重命名为 `app.jar`。
 >
-> 5. `ENTRYPOINT ["java", "-jar", "/app.jar"]`
+> 5. `EXPOSE` 指令用于声明容器在运行时将监听的端口。这里声明了容器将监听8080端口。虽然 `EXPOSE` 不会自动打开端口，但它会在 `docker run` 或 `docker-compose` 等命令中提供提示，以便正确映射端口。
+>
+> 6. `ENTRYPOINT ["java", "-jar", "/app.jar"]`
 >    - 使用 `ENTRYPOINT` 指令指定容器启动时运行的命令。这里指定了当容器启动时，应该运行 `java -jar /app.jar` 命令。这意味着容器启动时会运行 `/app.jar` 这个 Java 应用程序。
 >
 > #### 总结
 >
 > 这段 Dockerfile 的作用是：
 >
-> - 从 `openjdk:11.0-jre-buster` 镜像开始构建。
+> - 从 `openjdk:8-jdk-alpine` 镜像开始构建。
 > - 设置容器内的时区为上海时区。
 > - 将 `docker-demo.jar` 文件复制到镜像中，并重命名为 `app.jar`。
 > - 配置容器启动时自动运行 `java -jar /app.jar` 命令。
@@ -377,7 +384,7 @@ ENTRYPOINT ["java", "-jar", "/app.jar"]
 
 ### 构建镜像
 
-上传上述文件夹到 `/root` 目录下
+上传上述文件夹到 `/root` 目录下，使用 Docker 的 `build -t` 指令通过 Dockerfile 来构建镜像，方便创建容器实例。
 
 ```powershell
 docker build -t docker-demo:1.0 /root/demo
@@ -385,13 +392,13 @@ docker build -t docker-demo:1.0 /root/demo
 
 > 命令说明：
 >
-> - `docker build `: 就是构建一个docker镜像
+> - `docker build `: 就是构建一个 docker 镜像
 > - `-t docker-demo:1.0` ：`-t`参数是指定镜像的名称（`repository`和`tag`）
 > - `/root/demo` : 最后的点是指构建时 Dockerfile 所在路径
 
 
 
-或者进入镜像目录，执行：
+或者进入`/root/demo`目录，执行：
 
 ```powershell
 docker build -t docker-demo:1.0 .
@@ -418,13 +425,17 @@ docker run -d --name docker-demo -p 8080:8080 docker-demo:1.0
 
 ## 网络
 
-在 Docker 中，每个容器都有自己的 ip 地址。容器的网络IP其实是一个虚拟的IP，其值并不固定与某一个容器绑定，如果在开发时写死某个IP，而在部署时很可能MySQL容器的IP会发生变化，连接会失败。**借助于docker的网络功能来解决这个问题。**
+> 网络主要是为了解决：不同环境下，同一个容器的 IP 地址不同而导致的通信问题。
+>
+> - 在网络中可以通过容器的`服务名(容器名)`来替换 IP 地址
 
-> 在某些情况下，容器的 IP 地址可能会发生变化：
+在 Docker 中，每个容器都有自己的 ip 地址。容器的网络 IP 其实是一个虚拟的 IP，其值并不固定与某一个容器绑定。在某些情况下，容器的 IP 地址可能会发生变化。当容器的 IP 地址发送变化的时候，关联的容器需要修改对应的的 IP 地址才能再一次与其关联上。当然，同一个容器在开发和测试、线上环境等等都可能有不通过的 IP 地址，可以通过 Docker 提供的 `网络` 这一功能来解决这样的问题。
+
+> 容器 IP 地址发生改变的两种情况：
 >
 > 1. **容器被删除**:
 >    - 当删除一个容器时，与该容器关联的 IP 地址将被释放。
->    - 如果随后启动另一个容器，它可能会获得这个已释放的 IP 地址。
+>    - 如果随后首次启动另一个容器，它可能会获得这个已释放的 IP 地址。
 > 2. **使用自定义网络**:
 >    - 如果使用自定义的 Docker 网络（例如 `overlay` 或 `macvlan` 网络），你可以为容器手动分配 IP 地址。
 >    - 在这种情况下，可以通过 `--ip` 参数为容器指定一个静态 IP 地址。
@@ -482,9 +493,9 @@ docker network connect mahua mysql --alias db
 
 ## DockerCompose
 
-> **DockerCompose：** 实现**多个相互关联的Docker容器的快速部署**。它允许用户通过一个单独的 docker-compose.yml 模板文件（YAML 格式）来定义一组相关联的应用容器。
+> **DockerCompose：** 实现**多个相互关联的Docker容器的快速部署（同时部署MySQL、Redis、Nginx 和 Java 项目）**。它允许用户通过一个单独的 `docker-compose.yml` 模板文件（YAML 格式）来定义一组相关联的应用容器。
 
-docker-compose文件中可以定义多个相互关联的应用容器，每一个应用容器被称为一个服务（service）。service就是在定义某个应用的运行时参数，因此与`docker run`参数非常相似。
+docker-compose 文件中可以定义多个相互关联的应用容器，每一个应用容器被称为一个服务（service）。由于 service 就是在定义某个应用的运行时参数，因此与`docker run`参数非常相似。
 
 对比如下：
 
@@ -505,12 +516,12 @@ docker run -d \
   --name mysql \
   -p 3306:3306 \
   -e TZ=Asia/Shanghai \
-  -e MYSQL_ROOT_PASSWORD=123 \
+  -e MYSQL_ROOT_PASSWORD=123456 \
   -v ./mysql/data:/var/lib/mysql \
   -v ./mysql/conf:/etc/mysql/conf.d \
   -v ./mysql/init:/docker-entrypoint-initdb.d \
   --network mahua
-  mysql
+  mysql:8.0
 ```
 
 如果用`docker-compose.yml`文件来定义，就是这样：
@@ -520,7 +531,7 @@ version: "3.8"
 
 services:
   mysql:
-    image: mysql
+    image: mysql:8.0
     container_name: mysql
     ports:
       - "3306:3306"
@@ -531,9 +542,9 @@ services:
       - "./mysql/conf:/etc/mysql/conf.d"
       - "./mysql/data:/var/lib/mysql"
     networks:
-      - new
+      - net
 networks:
-  new:
+  net:
     name: mahua
 ```
 
@@ -543,12 +554,12 @@ networks:
 
 ### 示例
 
-mysql + demo（自己写的应用程序） + Nginx
+mysql + demo.jar（自己写的应用程序） + Nginx
 
 #### 编写 docker-compose.yml 文件
 
 ```YAML
-version: "1.1"
+version: "3.8"
 
 services:
   mysql:
@@ -600,7 +611,7 @@ networks:
 
 #### 部署项目
 
-编写好docker-compose.yml文件，就可以部署项目了。
+编写好 docker-compose.yml 文件，就可以部署项目了。
 
 ##### 基础命令
 
@@ -623,7 +634,7 @@ COMMAND 比较常见的有：
 
 | **参数或指令** | **说明**                     |
 | :------------- | :--------------------------- |
-| up             | 创建并启动所有service容器    |
+| up             | 创建并启动所有 service 容器  |
 | down           | 停止并移除所有容器、网络     |
 | ps             | 列出所有启动的容器           |
 | logs           | 查看指定容器的日志           |

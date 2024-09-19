@@ -46,12 +46,12 @@ create table user
     username     varchar(255) default '暂无昵称'  null comment '用户昵称',
     userAccount  varchar(255) not null unique comment '账号',
     userPassword varchar(255) default '52e218fc3f06b8eedafd3c36a8681953' not null comment '密码',
-    userStatus   int    default 0  null comment '状态：0-正常，1-禁用',
-    userRole     tinyint  default 0  null comment '用户角色：0-user/1- admin',
-    profile      varchar(1024)    null,
-    createTime   datetime     default CURRENT_TIMESTAMP  null comment '创建时间',
-    updateTime   datetime     default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间',
-    isDelete     tinyint      default 0 null comment '是否删除',
+    userStatus   int    default 0 comment '状态：0-正常，1-禁用',
+    userRole     tinyint  default 0  comment '用户角色：0-user/1- admin',
+    profile      varchar(1024) ,
+    createTime   datetime     default CURRENT_TIMESTAMP comment '创建时间',
+    updateTime   datetime     default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete     tinyint      default 0 comment '是否删除',
 )
     comment '用户表' engine = InnoDB;
 ```
@@ -63,11 +63,16 @@ create table user
 docker create network mahua
 ```
 
+在同一个网络中的容器可以通过容器名称或别名直接相互通信，而不需要使用 IP 地址。这使得配置和管理更加方便。
+
+- IP 地址可能会随着容器的重启或重新创建而改变，而容器名称通常是固定的。
+- 在配置文件或代码中使用容器名称而不是 IP 地址，可以减少硬编码，使配置更加灵活和可维护。
+- 不同容器可以通过容器名称直接通信，而不需要知道对方的 IP 地址。
 
 ### 3.创建并允许 MySQL 容器
 
 上传上述文件夹到 Linux 虚拟机中 的 `root` 目录下
-> 注意：2024 年 7 月 1 日 MySQL 最新版本变成 9.0 
+> 注意：2024 年 7 月 1 日 MySQL 版本更新为 9.0 
 ```Bash
 docker run -d \
   --name mysql \
@@ -77,7 +82,7 @@ docker run -d \
   -v ./mysql/data:/var/lib/mysql \
   -v ./mysql/conf:/etc/mysql/conf.d \
   -v ./mysql/init:/docker-entrypoint-initdb.d \
-  -- network mahua \
+  --network mahua \
   --restart=always\
   mysql:8.0
 ```
@@ -98,7 +103,8 @@ docker run -d \
 > - `-v ./mysql/data:/var/lib/mysql`：挂载`/root/mysql/data`到容器内的`/var/lib/mysql`目录
 > - `-v ./mysql/conf:/etc/mysql/conf.d`：挂载`/root/mysql/conf`到容器内的`/etc/mysql/conf.d`目录（这个是MySQL配置文件目录）
 > - `-v ./mysql/init:/docker-entrypoint-initdb.d` ：挂载`/root/mysql/init`到容器内的`/docker-entrypoint-initdb.d`目录（初始化的SQL脚本目录）
-> - `-- network mahua`：将创建的 MySQL 容器加入 mahua 网络
+>   - 这是容器内的目录路径。MySQL 容器在启动时会自动检查这个目录，并执行其中的 SQL 脚本文件。这些脚本文件通常用于初始化数据库，例如创建数据库、表、插入初始数据等。
+> - `--network mahua`：将创建的 MySQL 容器加入 mahua 网络
 > - `mysql` : 设置**镜像**名称，Docker会根据这个名字搜索并下载镜像
 >   - 格式：`REPOSITORY:TAG`，例如`mysql:8.0`，其中`REPOSITORY`可以理解为镜像名，`TAG`是版本号
 >   - 在未指定`TAG`的情况下，默认是最新版本，也就是`mysql:latest`
