@@ -1,7 +1,7 @@
 ---
 title: OpenFeign 传递用户
-date: 2024-05-27
-updated: 2024-05-27
+date: 2024-07-27
+updated: 2024-07-27
 tags: 
   - 实战
 category: SpringCloud

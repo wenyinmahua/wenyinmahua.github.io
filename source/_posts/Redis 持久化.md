@@ -19,10 +19,12 @@ cover: https://tse4-mm.cn.bing.net/th/id/OIP-C.Jed-UVwaIqf16oq5f8ATDQHaE8?w=251&
 >Redis 的两种数据持久化方案：
 >
 >- Redis 提供了两种主要的持久化机制：RDB（Redis Database Backup）和 AOF（Append Only File）。
->- RDB 是通过周期性地创建数据快照来实现持久化的，这些快照是内存中数据的副本，存储在磁盘上。
->- AOF 是通过记录每个写操作命令到一个文件中来实现持久化的，这些文件也存储在磁盘上。
+>- RDB 是通过周期性地创建`数据快照`来实现持久化的，这些快照是内存中数据的副本，存储在磁盘上。
+>  - 执行 save 或 bgsave 指令进行 RDB
 >
->RDB和AOF各有自己的优缺点，如果对数据安全性要求较高，在实际开发中往往会**结合**两来使用。
+>- AOF 是通过记录`每个写操作`命令到一个文件中来实现持久化的，这些文件也存储在磁盘上。
+>
+>RDB 和 AOF 各有自己的优缺点，如果对数据安全性要求较高，在实际开发中往往会**结合**两来使用。
 
 ## 1. RDB持久化
 
@@ -56,7 +58,7 @@ RDB持久化在四种情况下会运行：
 
 ![image-20240726222823461](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240726222823461.png)
 
-bgsave 开始时会 fork 主进程得到子进程，子进程共享主进程的内存数据。完成 fork 后读取内存数据并写入 RDB 文件。
+bgsave 开始时会 `fork` 主进程得到子进程，子进程共享主进程的内存数据。完成 fork 后读取内存数据并写入 RDB 文件。
 
 fork 采用的是 copy-on-write（写时复制） 技术：
 
@@ -144,7 +146,7 @@ appendfsync no
 
 ### 2.2AOF文件重写
 
-因为是记录命令，AOF 文件会比 RDB 文件大的多。而且 AOF 会记录对同一个 key 的多次写操作，但只有最后一次写操作才有意义。通过执行 bgrewriteaof 命令，可以让 AOF 文件执行重写功能，用最少的命令达到相同效果。
+因为是记录命令，AOF 文件会比 RDB 文件大的多。而且 AOF 会记录对同一个 key 的多次写操作，但只有最后一次写操作才有意义。通过执行 `bgrewriteaof` 命令，可以让 AOF 文件执行重写功能，用最少的命令达到相同效果。
 
 Redis也会在触发阈值时自动去重写 AOF 文件。阈值也可以在 redis.conf 中配置：
 

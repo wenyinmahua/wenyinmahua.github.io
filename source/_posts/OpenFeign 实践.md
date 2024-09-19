@@ -1,7 +1,7 @@
 ---
 title: OpenFeign 实践
-date: 2024-05-26
-updated: 2024-05-26
+date: 2024-07-26
+updated: 2024-08-19
 tags: 
   - 实战
 category: SpringCloud
@@ -12,21 +12,22 @@ cover: https://ts2.cn.mm.bing.net/th?id=OIP-C.KgHvzGJ_yB1eB3vRjQ3eJAHaEK&w=333&h
 
 OpenFeign 是一个声明式的 HTTP 客户端库，主要用于简化 HTTP API 的调用，通常与 Spring Cloud 生态系统一起使用。
 
+> - OpenFeign 远程调用就像发送 HTTP 请求一样简单 。
 > - OpenFeign 利用 SpringMVC 的相关注解来声明`请求方式`、`请求路径`、`请求参数`、`返回值类型`4个参数，然后基于动态代理生成远程调用的代码。
 > - OpenFeign 不是一种传统的 RPC (Remote Procedure Call) 框架。
-> - 尽管 OpenFeign 可以实现远程服务调用，但它的工作原理和传统 RPC 框架有所不同。
+> - 尽管 OpenFeign 可以实现远程服务调用，但它的工作原理和传统 RPC 框架（如 Dubbo）有所不同，因为使用的是 HTTP 实现的远程调用。
 
 > OpenFeign 需要进行如下操作：
 >
-> - 安装并开启 Nacos 注册中心
-> - 引入并下载 OpenFeign 依赖以及负载均衡 loadbalancer 依赖
-> - 通过 @EnableFeignClients 注解启动 OpenFeign
-> - 编写 FeignClient 客户端
->   - 一个接口，里面编写的方法，类似于 Controller 层代码，具有着 RESTful 风格。
->   - 需要加上 @FeignClient("server-name") 注解并配置服务名，方便在 Nacos 注册中心实现服务发现和调用相关服务。
-> - 直接使用 FeignClient 客户端完成远程调用。
+> - 安装并开启 `Nacos` 注册中心
+> - 引入并下载 `OpenFeign 依赖`以及负载均衡` loadbalancer `依赖
+> - 通过 `@EnableFeignClients` 注解启动 OpenFeign
+> - 编写 `FeignClient` 客户端
+>   - 一个`接口`，里面编写的方法，类似于 Controller 层代码，具有着 RESTful 风格。
+>   - 需要加上 `@FeignClient("server-name") `注解并配置服务名，方便在 Nacos 注册中心实现服务发现和调用相关服务。
+> - 直接使用 `FeignClient` 客户端完成远程调用。
 >
-> FeignClient 和 调用者不在同一个 model 中时，可以通过在 @EnableFeignClients 注解中加上 basePackages 属性扫描 Feign 所在的包 
+> FeignClient 和 调用者不在同一个 model 中时，可以通过在 `@EnableFeignClients` 注解中加上 basePackages 属性扫描 Feign 所在的包 
 
 
 
@@ -48,10 +49,11 @@ OpenFeign 是一个声明式的 HTTP 客户端库，主要用于简化 HTTP API 
 
 ## OpenFeign 入门
 
-> 有两个服务：
+> 既然要实现远程调用，那么需要有三个角色：
 >
 > - 服务提供者：`provider-service`服务，提供根据 id 查询用户的服务。
 > - 服务调用者：`caller-service`服务，需要远程调用 `provider-service` 提供的根据 id 查询用户的服务。
+> - 注册中心：`Nacos` 注册中心管理提供了`服务注册`和`服务发现`的功能。
 
 
 

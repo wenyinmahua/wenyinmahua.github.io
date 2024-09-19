@@ -1,7 +1,7 @@
 ---
 title: Nacos 配置管理
-date: 2024-05-28
-updated: 2024-05-28
+date: 2024-07-28
+updated: 2024-07-28
 tags: 
   - 实战
 category: SpringCloud
@@ -388,5 +388,4 @@ public class DynamicRouteLoader {
 
 
 网关路由配置完成。
-
 

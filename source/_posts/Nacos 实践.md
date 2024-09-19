@@ -1,7 +1,7 @@
 ---
 title: Nacos 实践
-date: 2024-05-25
-updated: 2024-05-27
+date: 2024-07-25
+updated: 2024-07-27
 tags: 
   - 实战
 category: SpringCloud
