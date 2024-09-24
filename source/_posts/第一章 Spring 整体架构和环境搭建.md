@@ -200,6 +200,20 @@ public class LoggingAspect {
 
 
 
+#### Spring Bean 的作用域 scope
+
+| 作用域      | 描述                                                         |
+| ----------- | ------------------------------------------------------------ |
+| singleton   | 在 Spring IoC 容器仅存在一个 Bean 实例，Bean 以单例方式存在，Bean 作用域范围的默认值。 |
+| prototype   | 每次从容器中调用 Bean 时，都返回一个新的实例，即每次调用 getBean() 时，相当于执行 newXxxBean()。 |
+| request     | 每次 HTTP 请求都会创建一个新的 Bean，该作用域仅适用于 web 的 Spring WebApplicationContext 环境。 |
+| session     | 同一个 HTTP Session 共享一个 Bean ，不同 Session 使用不同的 Bean。该作用域仅适用于 Web 的Spring WebApplicationContext环境。 |
+| application | 限定一个 Bean 的作用域为 ServletContext 的生命周期。该作用域仅适用于 web 的Spring WebApplicationContext环境。 |
+
+
+
+
+
 #### 如何定义初始化和销毁方法
 
 1. **使用 `@PostConstruct` 和 `@PreDestroy` 注解**：
