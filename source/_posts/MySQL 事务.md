@@ -1,10 +1,12 @@
-```
+---
 title: MySQL 事务
 date: 2024-08-20
 updated: 2024-08-20
 category: MySQL
 cover: https://tse3-mm.cn.bing.net/th/id/OIP-C.LvJiXW0ldtBwCwC5TBSh4QHaEK?w=321&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7
-```
+---
+
+
 
 # MySQL 事务
 
