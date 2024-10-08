@@ -1,5 +1,5 @@
 ---
-title: Spring 基础
+title: Spring Boot 从 0 到 1
 date: 2023-10-08
 updated: 2023-10-15
 comments: true
