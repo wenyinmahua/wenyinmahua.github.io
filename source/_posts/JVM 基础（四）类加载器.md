@@ -30,7 +30,7 @@ cover: https://tse2-mm.cn.bing.net/th/id/OIP-C.iK1EFamgj6pjOvuhROEFNAHaEK?w=305&
 
 
 
-类加载器的运行机制是 Java 虚拟机（JVM）中的一个重要部分，它负责将类的二进制数据（字节码文件）加载到 JVM 的方法区，并生成一个对应的 `Class` 对象（虚拟机会在方法区和堆上生成对应的对象保存字节码信息）。类加载器的运行遵循双亲委派模型（Parent Delegation Model），确保类的加载具有层次性和安全性。
+类加载器的运行机制是 Java 虚拟机（JVM）中的一个重要部分，它负责将类的二进制数据（字节码文件）加载到 JVM 的方法区，并生成一个对应的 `Class` 对象（虚拟机会在方法区[InstanceKlass]和堆上[class]生成对应的对象保存字节码信息）。类加载器的运行遵循双亲委派模型（Parent Delegation Model），确保类的加载具有层次性和安全性。
 
 ### 类加载器的运行机制
 
@@ -44,7 +44,7 @@ cover: https://tse2-mm.cn.bing.net/th/id/OIP-C.iK1EFamgj6pjOvuhROEFNAHaEK?w=305&
 
 
 
-#### 以下情况的类被加载的前提是类没有被加载
+#### 以下情况的类被加载的，前提是类没有被加载
 
 
 
@@ -70,7 +70,7 @@ String role = UserConstant.ADMIN_ROLE;
 
 #### 4. 反射调用
 
-通过Java的反射API访问一个尚未加载的类时，类加载器会加载该类。
+通过 Java 的反射 API 访问一个尚未加载的类时，类加载器会加载该类。
 
 ```java
 Class<?> studentClass = Class.forName("jvm.classLoader.Student");
@@ -98,7 +98,7 @@ public class ClassLoaderTest {
 
 #### 6. 动态代理
 
-在使用Java的动态代理机制时，代理类会在运行时动态生成并加载。
+在使用 Java 的动态代理机制时，代理类会在运行时动态生成并加载。
 
 
 
@@ -114,7 +114,7 @@ public class ClassLoaderTest {
   - 类加载只是将类的二进制数据加载到内存中，并生成一个 `Class` 对象。
   - 类初始化则是在类加载之后的一个阶段，执行类的初始化代码，包括**静态初始化块和静态变量的赋值操作**。
 
-- 类加载的字节码文件在 Java 虚拟机（JVM）中被加载到方法区（Method Area），并且生成一个对应的 `Class` 对象。类的元数据信息会一直保留在方法区中，直到满足某些条件才会被垃圾回收器（Garbage Collector, GC）回收。
+- 类加载的字节码文件在 Java 虚拟机（JVM）中被加载到方法区（Method Area）中生成一个 InstanceKlass 对象，并且在堆中生成一个对应的 `Class` 对象。类的元数据信息会一直保留在方法区中，直到满足某些条件才会被垃圾回收器（Garbage Collector, GC）回收。
   - 类的元数据信息在 JVM 中会一直保留，直到满足以下条件之一：
     - 应用程序终止。
     - 类加载器被垃圾回收。
@@ -170,16 +170,16 @@ public class BootstrapClassLoaderDemo {
 }
 ```
 
-无法通过  String.class.getClassLoader(); 获取 String 类的类加载器，因为启动类加载器在 JDK8 是通过 C++ 写的，在Java 代码中获取是不安全的，返回的是 null；
+无法通过  String.class.getClassLoader(); 获取 String 类的类加载器，因为启动类加载器在 JDK8 是通过 C++ 写的，不存在 java 代码中，而是存在 JVM 环境中，在Java 代码中获取是不安全的，返回的是 null；
 
 
 
-#### 用户扩展基础jar包
+#### 用户扩展基础 jar 包
 
 如果用户想扩展一些比较基础的 jar 包，**让启动类加载器加载**，有两种途径：
 
 - **放入jre/lib下进行扩展**。不推荐，尽可能不要去更改JDK安装目录中的内容，会出现即使放进去由于文件名不匹配的问题也不会正常地被加载。
-- **使用参数进行扩展。**推荐，使用 `-Xbootclasspath/a:jar包目录/jar包名` 进行扩展，参数中的/a代表新增。
+- **使用参数进行扩展。**推荐，使用 `-Xbootclasspath/a:{jar包目录/jar包名}` 进行扩展，参数中的/a代表新增。
 
 
 
@@ -202,7 +202,7 @@ public class BootstrapClassLoaderDemo {
 
 #### 3.1 扩展类加载器
 
-扩展类加载器（Extension Class Loader）默认加载 java 安装目录 `/jre/lib/ext` 下的类文件
+扩展类加载器（Extension Class Loader）是 JDK 提供的，由 Java 语言编写的类加载器，默认加载 java 安装目录 `/jre/lib/ext` 下的类文件
 
 ![jre](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240917122241694.png)
 
@@ -233,7 +233,7 @@ public class ExtClassLoaderDemo {
 
 
 
-#### 3.2 应用程序 类加载器
+#### 3.2 应用程序类加载器
 
 应用程序类加载器会加载 `classpath` 下的类文件，默认加载的是 `项目中的类`以及通过 `maven 引入的第三方 jar 包中的类`。
 
@@ -263,7 +263,7 @@ public class ExtClassLoaderDemo {
 
 #### 双亲委派机制的作用
 
-1. 保证类加载的安全性。通过双亲委派机制避免恶意代码替换 JDK 中的核心类库，比如 java.lang.String，确保核心类库的完整性和安全性。
+1. 保证类加载的安全性。通过双亲委派机制避免恶意代码替换 JDK 中的核心类库，比如在代码中重写了 java.lang.String 这个类，由于这个类是被启动类加载器加载过的，所以当加载自定义的 String类的时候，会直接返回启动类加载的 String 类（JDK 提供的），而不是自定义的 java.lang.String  ，确保核心类库的完整性和安全性。
 2. 避免重复加载。双亲委派机制可以避免同一个类被多次加载。类被加载后会保存在 JVM 的方法区，重复加载没有意义。
 
 
@@ -297,20 +297,20 @@ public class ClassLoaderTest {
 
 #### 打破双亲委派系统
 
-- 自定义类加载器继承 `ClassLoader` 并重写 `loadClass` 方法
-- 利用线程上下文类加载器
-- 使用 Osgi 等框架的类加载器
+- 自定义类加载器继承 `ClassLoader` 并重写 `loadClass` 方法，将双向委派机制的代码去掉
+- 利用线程上下文类加载器（JDBC、JNDI）
+- 使用 Osgi 等框架的类加载器，允许统计之间委托进行类的加载
 
 自定义类加载器
 
-ClassLoader中包含了4个核心方法，双亲委派机制的核心代码就位于loadClass方法中。
+ClassLoader中包含了4个核心方法，双亲委派机制的核心代码就位于 loadClass 方法中。
 
 ```Java
 public Class<?> loadClass(String name)
-// 类加载的入口，提供了双亲委派机制。内部会调用findClass   重要
+// 类加载的入口，提供了双亲委派机制。传递类的全限定类名，内部会调用findClass
 
 protected Class<?> findClass(String name)
-// 由类加载器子类实现,获取二进制数据调用defineClass ，比如URLClassLoader会根据文件路径去获取类文件中的二进制数据。重要
+// 抽象方法，用于获取字节码文件的二进制数据，由类加载器子类实现，获取二进制数据调用 defineClass ，比如 URLClassLoader 会根据文件路径去获取类文件中的二进制数据。
 
 protected final Class<?> defineClass(String name, byte[] b, int off, int len)
 // 做一些类名的校验，然后调用虚拟机底层的方法将字节码信息加载到虚拟机内存中
@@ -318,6 +318,78 @@ protected final Class<?> defineClass(String name, byte[] b, int off, int len)
 protected final void resolveClass(Class<?> c)
 // 执行类生命周期中的连接阶段
 ```
+
+
+
+```java
+/**
+ * 打破双亲委派机制 - 自定义类加载器
+ */
+
+public class BreakClassLoader extends ClassLoader {
+
+    private String basePath;
+    private final static String FILE_EXT = ".class";
+
+    //设置加载目录
+    public void setBasePath(String basePath) {
+        this.basePath = basePath;
+    }
+
+    //使用commons io 从指定目录下加载文件
+    private byte[] loadClassData(String name)  {
+        try {
+            String tempName = name.replaceAll("\\.", Matcher.quoteReplacement(File.separator));
+            FileInputStream fis = new FileInputStream(basePath + tempName + FILE_EXT);
+            try {
+                return IOUtils.toByteArray(fis);
+            } finally {
+                IOUtils.closeQuietly(fis);
+            }
+
+        } catch (Exception e) {
+            System.out.println("自定义类加载器加载失败，错误原因：" + e.getMessage());
+            return null;
+        }
+    }
+
+    //重写loadClass方法
+    @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException {
+        //如果是java包下，还是走双亲委派机制
+        if(name.startsWith("java.")){
+            return super.loadClass(name);
+        }
+        //从磁盘中指定目录下加载
+        byte[] data = loadClassData(name);
+        //调用虚拟机底层方法，方法区和堆区创建对象
+        return defineClass(name, data, 0, data.length);
+    }
+
+    public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
+        //第一个自定义类加载器对象
+        BreakClassLoader classLoader1 = new BreakClassLoader();
+        classLoader1.setBasePath("D:\\lib\\");
+
+        Class<?> clazz1 = classLoader1.loadClass("com.itheima.my.A");
+         //第二个自定义类加载器对象
+        BreakClassLoader1 classLoader2 = new BreakClassLoader1();
+        classLoader2.setBasePath("D:\\lib\\");
+
+        Class<?> clazz2 = classLoader2.loadClass("com.itheima.my.A");
+
+        System.out.println(clazz1 == clazz2);
+
+        Thread.currentThread().setContextClassLoader(classLoader1);
+
+        System.out.println(Thread.currentThread().getContextClassLoader());
+
+        System.in.read();
+     }
+}
+```
+
+
 
 
 

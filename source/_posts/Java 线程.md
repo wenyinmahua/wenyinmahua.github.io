@@ -13,14 +13,18 @@ cover: https://tse4-mm.cn.bing.net/th/id/OIP-C._Lm_T3scKhVEVFC54gcRxwHaE8?w=249&
 > ❓核心线程数到底配置多少？
 >
 > - 计算密集型：核心线程数量 = CPU 的核数 + 1；
+>   - 比 CPU 核心数多出来的一个线程是为了防止线程偶发的缺页中断，或者其它原因导致的任务暂停而带来的影响。一旦任务暂停，CPU 就会处于空闲状态，而在这种情况下多出来的一个线程就可以充分利用 CPU 的空闲时间。
+>
 > - IO密集型：核心线程池数量 = CPU 的核数 *  2；
+>   - 主要是因为进行 IO 操作时，IO操作会独立执行，不太需要 CPU 资源
+>
 >
 
 
 
 > ❗注意：
 >
-> - 大型并发系统环境中使用 `Executors` 创建线程池如果不注意会出现系统风险
+> - 大型并发系统环境中使用 `Executors` 创建线程池如果不注意会出现系统风险（OOM，内存溢出）
 
 
 
@@ -373,9 +377,15 @@ try{}catch{}finally{
 
 任务需要实现 Runnable 或者 Callable 接口。
 
+### 前置知识
+
+#### 阻塞队列
 
 
-#### 如何创建线程池
+
+
+
+### 如何创建线程池
 
 JDK 提供了代表线程池的接口 ExecutorService，实现类 ThreadPoolExecutor
 
@@ -414,7 +424,40 @@ ExecutorService executorService = new ThreadPoolExecutor(3,2,10,
 
 ![image-20240503180148594](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240503180148594.png)
 
-![image-20240503203453927](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240503203453927.png)
+
+
+### Executors 接口![image-20240503203453927](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240503203453927.png)
+
+
+
+#### newFixedThreadPool 详解
+
+newFixedThreadPool 的构造方法1，指定核心线程数
+
+```java
+public static ExecutorService newFixedThreadPool(int nThreads) {
+    return new ThreadPoolExecutor(nThreads, nThreads,
+                                  0L, TimeUnit.MILLISECONDS,
+                                  new LinkedBlockingQueue<Runnable>());
+}
+```
+
+newFixedThreadPool 的构造方法2，指定核心线程数和创建线程的工厂
+
+```java
+public static ExecutorService newFixedThreadPool(int nThreads, ThreadFactory threadFactory) {
+    return new ThreadPoolExecutor(nThreads, nThreads,
+                                  0L, TimeUnit.MILLISECONDS,
+                                  new LinkedBlockingQueue<Runnable>(),
+                                  threadFactory);
+}
+```
+
+
+
+
+
+
 
 
 
