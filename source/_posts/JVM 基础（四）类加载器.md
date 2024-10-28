@@ -15,18 +15,19 @@ cover: https://tse2-mm.cn.bing.net/th/id/OIP-C.iK1EFamgj6pjOvuhROEFNAHaEK?w=305&
 
 ## 导言
 
-> 在 Java 中，程序员编写出的代码为源代码，要让机器能看懂并执行，就要转换成机器语言，但是在不同的平台（操作系统）上将源代码编译后的机器语言可能不一样，因此可能会需要多次编译，才能在不同的平台上运行。而 Java 为了解决这个问题，实现跨平台的功能，设计了 JVM。源代码经过编译后生成 `class` 字节码文件，也就是中间代码，中间代码通过 不同平台的 JVM 解释后，会解释成相关平台能识别的机器语言。
->
+在 Java 中，程序员编写出的代码为源代码，要让机器能看懂并执行，就要转换成机器语言，但是在不同的平台（操作系统）上将源代码编译后的机器语言可能不一样，因此可能会需要多次编译，才能在不同的平台上运行。而 Java 为了解决这个问题，实现跨平台的功能，设计了 JVM。源代码经过编译后生成 `class` 字节码文件，也就是中间代码，中间代码通过 不同平台的 JVM 解释后，会解释成相关平台能识别的机器语言。
+
 > JVM 是怎么实现跨平台的呢？
 >
 > ![JDK 的版本分类](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240920110542612.png)
 >
 > - 由上图可见，JDK 分为 Linux、macOS、Windows，这些不同版本的 JVM 实现各不相同。
-> - 如果将 Java 编译后生成一份字节码文件（中间代码），它们能将同一份字节码文件编译成不同平台上能识别的机器语言，就这样水灵灵地实现了跨平台的功能。这就是所说的“一次编译，到处运行”。
->
+>- 如果将 Java 编译后生成一份字节码文件（中间代码），它们能将同一份字节码文件编译成不同平台上能识别的机器语言，就这样水灵灵地实现了跨平台的功能。这就是所说的“一次编译，到处运行”。
+> 
 > JVM 本来就是运行在计算机上的程序，它负责解释和执行Java字节码。这个字节码怎么获取呢？
 >
 > - 答案是通过**类加载器**。
+>- 类加载器负责在类加载过程中的字节码获取并加载到内存中的这一部分，通过加载字节码数据放入内存转换成 byte[]，接下来调用虚拟机底层方法将 byte[] 转换成方法区和堆中的数据
 
 
 
@@ -391,11 +392,33 @@ public class BreakClassLoader extends ClassLoader {
 
 
 
+#### JDBC 打破双亲委派系统
+
+> 由启动类加载器加载的类，委派应用程序类加载器去加载类
+
+##### 关键代码
+
+```java
+ClassLoader callerCL = caller != null ? caller.getClassLoader() : null;
+if (callerCL == null || callerCL == ClassLoader.getPlatformClassLoader()) {
+    callerCL = Thread.currentThread().getContextClassLoader();
+    // 获得的一般是应用程序类加载器，通过 SPI 利用了线程上下文类加载器去加载类并创建对象。
+}
+```
+
+![JDBC 打破双亲委派系统](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20241024160201004.png)
+
+
+
 
 
 ### JDK 9 之后的类加载器
 
-1.启动类加载器使用 Java 编写，位于 jdk.internal.loader.ClassLoaders 类中。
+JDK 9 之后引入了 model 的概念，类加载器在设计上发生了很多变化：
+
+![JDK](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20241024175016307.png)
+
+1.启动类加载器使用 Java 编写，位于 jdk.internal.loader.ClassLoaders 类中。（jdk8 的扩展类加载器和应用程序类加载器的源码包位于 /jre/lib 文件夹下的 rt.jar  包中的 sun.misc.Launcher.java 中）
 
    Java 中的 BootClassLoader 继承自 BuiltinClassLoader 实现从模块中找到要加载的字节码资源文件。
 
