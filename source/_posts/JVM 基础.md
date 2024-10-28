@@ -1,5 +1,5 @@
 ---
-title: JVM 基础（一）了解 JVM
+title: JVM 基础
 date: 2024-08-24
 updated: 2024-08-24
 category: JVM

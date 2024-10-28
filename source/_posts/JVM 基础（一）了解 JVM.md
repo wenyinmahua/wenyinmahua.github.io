@@ -3,7 +3,7 @@ title: JVM 基础（一）了解 JVM
 date: 2024-08-24
 comments: true
 comments: true
-category: Spring
+category: JVM
 tags:
   - 阅读
 cover: https://tse2-mm.cn.bing.net/th/id/OIP-C.iK1EFamgj6pjOvuhROEFNAHaEK?w=305&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7
