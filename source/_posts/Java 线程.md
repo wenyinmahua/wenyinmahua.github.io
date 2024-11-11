@@ -78,7 +78,7 @@ cover: https://tse4-mm.cn.bing.net/th/id/OIP-C._Lm_T3scKhVEVFC54gcRxwHaE8?w=249&
 
 
 
-### 方法一
+### 方法一 继承 Thread 类
 
 #### 优缺点
 
@@ -121,7 +121,7 @@ class MyThread extends Thread{
 
 
 
-### 方法二
+### 方法二 实现 Runnable 接口
 
 实现 Runnable，重写 run 方法，通过 `new Thread(实现Runnable接口的对象).start()` 来调用；
 
@@ -188,7 +188,7 @@ new Thread(()->{
 
 
 
-### 方法三
+### 方法三 实现Callable 接口
 
 前两种线程方法都存在一种问题
 
@@ -381,11 +381,28 @@ try{}catch{}finally{
 
 #### 阻塞队列
 
+- ArrayBlockingQueue：有界阻塞队列，底层使用数组实现，一旦指定大小，就不能再次修改
 
+- LinkedBlockingQueue：有界阻塞队列，底层使用链表实现
+
+- SynchronousQueue：没有容量，不存放元素，目的是保证对于提交的任务，如果有空闲线程，则用空闲线程来执行，否则创建一个新的线程来处理任务
+- DelayedWorkQueue：延时工作队列，按照延迟的时间长短对人物排序，保证每次出队的任务都是当前队伍中执行时间最靠前的。
+
+#### 线程的拒绝策略
+
+- AbortPolicy：抛出RejectedExecutionExpection异常来拒绝新任务的处理。
+
+- CallerRunsPolicy：由执行调用自己的线程来处理，比如main线程调用了 execute 方法，相关线程无法执行，那么就由 main 线程来执行该线程的 run 方法，会降低新任务的提交速度，影响程序整体的性能；
+
+- DiscardPolicy：不处理新任务，直接丢弃掉；
+
+- DiscardOldestPolicy：丢弃掉最早的未处理的任务请求。
 
 
 
 ### 如何创建线程池
+
+![ThreadPoolExecutor 继承实现关系](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20241107184908005.png)
 
 JDK 提供了代表线程池的接口 ExecutorService，实现类 ThreadPoolExecutor
 
@@ -422,7 +439,7 @@ ExecutorService executorService = new ThreadPoolExecutor(3,2,10,
 
 ![image-20240503174945163](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240503174945163.png)
 
-![image-20240503180148594](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240503180148594.png)
+![拒绝策略](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20240503180148594.png)
 
 
 
@@ -453,11 +470,119 @@ public static ExecutorService newFixedThreadPool(int nThreads, ThreadFactory thr
 }
 ```
 
+可以看出 newFixedThreadPool 类创建处的线程池的核心线程数的大小和最大线程数的大小相同。
+
+> LinkedBlockingQueue 的存在意味着会出现 OOM
 
 
 
+#### newSingleThreadExecutor 详解
+
+newSingleThreadExecutor 的方法如下：
+
+```java
+public static ExecutorService newSingleThreadExecutor() {
+    return newSingleThreadExecutor(defaultThreadFactory());
+}
+```
+
+其调用的方法如下：
+
+```java
+public static ExecutorService newSingleThreadExecutor(ThreadFactory threadFactory) {
+    return new AutoShutdownDelegatedExecutorService
+        (new ThreadPoolExecutor(1, 1,
+                                0L, TimeUnit.MILLISECONDS,
+                                new LinkedBlockingQueue<Runnable>(),
+                                threadFactory));
+}
+```
+
+只创建了 1 个线程，使用的阻塞队列是 LinkeBlockingQueue 阻塞队列
 
 
+
+#### newScheduledThreadPool 详解
+
+newScheduledThreadPool  其方法如下：
+
+```java
+public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) {
+    return new ScheduledThreadPoolExecutor(corePoolSize);
+}
+```
+
+调用了ScheduledThreadPoolExecutor 类的ScheduledThreadPoolExecutors 构造器，返回的是 ScheduledExecutorService 类型的对象，调用的方法位于如下：
+
+```java
+public ScheduledThreadPoolExecutor(int corePoolSize) {
+    super(corePoolSize, Integer.MAX_VALUE,
+          DEFAULT_KEEPALIVE_MILLIS, MILLISECONDS,
+          new DelayedWorkQueue());
+}
+```
+
+ScheduledThreadPoolExecutor 类继承实现关系如下：
+
+```java
+public class ScheduledThreadPoolExecutor extends ThreadPoolExecutor implements ScheduledExecutorService
+```
+
+所以 super 方法调用了 ThreadPoolExecutor 的构造方法：
+
+```java
+public ThreadPoolExecutor(int corePoolSize,
+                          int maximumPoolSize,
+                          long keepAliveTime,
+                          TimeUnit unit,
+                          BlockingQueue<Runnable> workQueue) {
+    this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
+         Executors.defaultThreadFactory(), defaultHandler);
+}
+```
+
+
+
+#### newCachedThreadPool 详解
+
+newCachedThreadPool 方法如下：
+
+```java
+public static ExecutorService newCachedThreadPool() {
+    return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                  60L, TimeUnit.SECONDS,
+                                  new SynchronousQueue<Runnable>());
+}
+```
+
+直接调用了 ThreadPoolExecutor 的构造函数来创建线程池。
+
+
+
+#### 注意
+
+> 阿里巴巴 Java 开发手册中提到：
+>
+> 【强制】线程池不允许使用 Executors 去创建，而是通过 ThreadPoolExecutor 的方式，这样的处理方式让写的同学更加明确线程池的运行规则，规避资源耗尽的风险。
+>
+> 说明：Executors 返回的线程池对象的弊端如下：
+>
+> 1）FixedThreadPool 和 SingleThreadPool:
+>
+> 允许的请求队列长度为 Integer.MAX_VALUE，可能会堆积大量的请求，从而导致 OOM。
+>
+> 2）CachedThreadPool 和 ScheduledThreadPool:
+>
+> 允许的创建线程数量为 Integer.MAX_VALUE，可能会创建大量的线程，从而导致 OOM。
+
+
+
+### 线程池提交任务
+
+线程池提交任务有两种，一种使用 `submit` 方法提交，一种使用 `execute` 方法提交，两者区别如下：
+
+- 使用 execute 提交任务：当任务抛出异常的时候，如果这个异常没有被捕获，那么这个异常会终止当前相乘，并且异常会打印到控制台或者日志，线程池检测到这个线程终止之后，就会创建一个新的线程来替换他。
+- 使用 submit 提交任务：当任务执行中发生异常时，这个异常不会直接打印出来，而是被封装到 submit 返回的 Future 对象中，当调用 Future 的 get 方法的时候，可以捕获一个 ExecutionException，线程不会因为异常而终止，继续执行下一个任务。
 
 
 
