@@ -81,7 +81,7 @@ cover: https://tse2-mm.cn.bing.net/th/id/OIP-C.z8NU3Nl2sLqS6vu3GFncIAAAAA?w=290&
 
 Seata 工作架构图![Seata 工作架构图](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/e931c59e-cb61-4072-a6ef-b06c5c4a9553.png)
 
-其中，**TM **和 **RM** 可以理解为 Seata 的客户端部分，引入到参与事务的微服务依赖中即可。将来 **TM** 和 **RM** 就会协助微服务，实现本地分支事务与 **TC** 之间交互，实现事务的提交或回滚。
+其中，**TM** 和 **RM** 可以理解为 Seata 的客户端部分，引入到参与事务的微服务依赖中即可。将来 **TM** 和 **RM** 就会协助微服务，实现本地分支事务与 **TC** 之间交互，实现事务的提交或回滚。
 
 而 **TC** 服务则是事务协调中心，是一个独立的微服务，需要单独部署。
 
@@ -196,7 +196,7 @@ INSERT INTO `distributed_lock` (lock_key, lock_value, expire) VALUES ('TxTimeout
 
 ### 2. Docker 部署
 
-需要注意，要确保nacos、mysql都在 mahua 网络中。如果某个容器不再hm-net网络，可以参考下面的命令将某容器加入指定网络：
+需要注意，要确保nacos、mysql都在 mahua 网络中。如果某个容器不在 mahua 网络中，可以参考下面的命令将某容器加入指定网络：
 
 ```Shell
 docker network connect [网络名] [容器名]
@@ -208,7 +208,7 @@ docker network connect [网络名] [容器名]
 
 自定义配置文件需要通过挂载文件的方式实现，将宿主机上的 `application.yml` 挂载到容器中相应的目录
 
-首先启动一个用户将resources目录文件拷出的临时容器
+首先启动一个用户将 resources 目录文件拷出的临时容器
 
 ```powershell
 docker run -d 
