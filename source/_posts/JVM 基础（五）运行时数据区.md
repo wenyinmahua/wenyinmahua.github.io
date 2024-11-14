@@ -53,7 +53,7 @@ cover: https://tse2-mm.cn.bing.net/th/id/OIP-C.iK1EFamgj6pjOvuhROEFNAHaEK?w=305&
 
 
 
-![一图了解 java 8 内存结构](https://ask.qcloudimg.com/http-save/yehe-1420980/biyx8kz2je.png)
+![一图了解 java 8 内存结构](https://web-tlias-mmh.oss-cn-beijing.aliyuncs.com/img/image-20241114112839024.png)
 
 > 图片来源于[终于搞懂了Java8的内存结构，再也不纠结方法区和常量池了！-腾讯云开发者社区-腾讯云](https://cloud.tencent.com/developer/article/1810426)
 
