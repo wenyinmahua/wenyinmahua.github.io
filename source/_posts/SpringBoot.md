@@ -692,10 +692,6 @@ big-event:
   alioss:
     #配置阿里云OSS相关信息，根据sky-common文件下的properties包中的AliOssProperties进行自动补齐
     endpoint: oss-cn-beijing.aliyuncs.com
-    access-key-id: abc
-    access-key-secret: 
-    bucket-name: 
-
 
 ```
 
