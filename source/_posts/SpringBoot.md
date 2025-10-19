@@ -602,7 +602,7 @@ public class AliOssUtil {
 	private static String endpoint = "oss-cn-beijing.aliyuncs.com";
 	private static String accessKeyId = "accessKeyId";
 	private static String accessKeySecret = null;
-	private static String bucketName = "bucket-name";
+	private static String bucketName = null;
 
 	/**
 	 * 文件上传
@@ -693,8 +693,8 @@ big-event:
     #配置阿里云OSS相关信息，根据sky-common文件下的properties包中的AliOssProperties进行自动补齐
     endpoint: oss-cn-beijing.aliyuncs.com
     access-key-id: abc
-    access-key-secret: abc
-    bucket-name: abc
+    access-key-secret: 
+    bucket-name: 
 
 
 ```
